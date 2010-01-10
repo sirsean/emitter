@@ -1,0 +1,19 @@
+Emitter is an open protocol and server platform for extensible Twitter-like communication that supports server-to-server cooperation.
+
+To set it up, you'll first need Mongo installed and running.
+
+1. [Download Mongo](http://www.mongodb.org/display/DOCS/Downloads)
+2. Unpack it (unzip, tar, etc)
+3. cd Downloads/mongodb-osx-x86_64-1.2.1 (or whatever the path is to the directory you just unpacked)
+4. bin/mongod
+
+Your Mongo server is running! Now you'll need to install some gems:
+
+    gem install mongo
+    gem install sinatra
+
+Then you can run the server:
+
+    ruby emitter_server.rb
+
+Go to http://localhost:4567/test to start hitting your new Emitter timeline server with requests!
