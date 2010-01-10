@@ -12,6 +12,7 @@ require 'remote/RemoteServerService'
 require 'processor/ForwardTweetProcessor'
 require 'processor/ForwardFollowProcessor'
 require 'processor/ForwardUnfollowProcessor'
+require 'processor/AuthenticatedProcessor'
 require 'Settings'
 
 # load the settings
@@ -27,7 +28,8 @@ tweetDao = TweetDao.new(db["tweets"])
 # set up helper services
 remoteServerService = RemoteServerService.new
 
-# set up post-processors for any actions that'll require them
+# set up pre/post-processors for any actions that'll require them
+authenticatedProcessor = AuthenticatedProcessor.new(settings, userDao)
 postTweetProcessors = [
     ForwardTweetProcessor.new(settings, remoteServerService)
 ]
@@ -40,9 +42,9 @@ unfollowProcessors = [
 
 # set up the remoted services, in order of preference (note that no method name can be shared across services)
 services = [
-    PublicService.new(settings, userDao, tweetDao),
-    AuthenticatedService.new(settings, userDao, tweetDao, postTweetProcessors, followProcessors, unfollowProcessors),
-    ServerService.new(settings, userDao, tweetDao),
+    {"service"=>PublicService.new(settings, userDao, tweetDao)},
+    {"service"=>AuthenticatedService.new(settings, userDao, tweetDao, postTweetProcessors, followProcessors, unfollowProcessors), "preProcessors" => [authenticatedProcessor]},
+    {"service"=>ServerService.new(settings, userDao, tweetDao)},
 ]
 
 post '/api/?' do
@@ -50,15 +52,22 @@ post '/api/?' do
     puts payload.inspect
     for service in services
         begin
-            result = service.send(payload['method'], payload)
+            if service["preProcessors"]
+                service["preProcessors"].each{ |processor|
+                    processor.process(payload)
+                }
+            end
+            result = service["service"].send(payload['method'], payload)
             break
         rescue NoMethodError
+            # we're going to continue on to the next service, if there is one
             puts "Failed"
             puts $ERROR_INFO.inspect
         rescue
             puts "There was actually an error!"
             puts $ERROR_INFO.inspect
-            result = {"error" => "There was actually an error"}
+            result = {"error" => $ERROR_INFO.message}
+            break
         end
     end
     if not result

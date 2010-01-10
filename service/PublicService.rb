@@ -159,7 +159,11 @@ class PublicService
             raise "User not found"
         end
 
-        tweets = @tweetDao.getTweets(user['tweets'])
+        if user["tweets"] and user["tweets"].length > 0
+            tweets = @tweetDao.getTweets(user['tweets'])
+        else
+            tweets = []
+        end
 
         # need to call map because the DAO returns a Mongo Cursor, which is iterable but is not an array
         tweets.map{ |tweet|

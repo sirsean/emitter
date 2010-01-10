@@ -24,6 +24,18 @@ class UserDao
     end
 
 =begin
+    Authenticate a user with a username and password
+
+    @param username - the username of the user that's logging in
+    @param password - the password to check for this user
+    @return true if the user is found and the password matches, false otherwise
+=end
+    def authenticateUser(username, password)
+        users = @userCollection.find("username" => username, "password" => password)
+        return (users.count() > 0)
+    end
+
+=begin
     Determine if a local user is following another user (either local or remote)
 
     @param username - the username of the local user

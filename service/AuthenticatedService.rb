@@ -4,7 +4,7 @@
 =end
 class AuthenticatedService
 
-    def initialize(settings, userDao, tweetDao, postTweetProcessors, followProcessors, unfollowProcessors)
+    def initialize(settings, userDao, tweetDao, postTweetProcessors=[], followProcessors=[], unfollowProcessors=[])
         @settings = settings
         @userDao = userDao
         @tweetDao = tweetDao
