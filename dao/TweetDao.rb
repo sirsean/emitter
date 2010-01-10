@@ -26,6 +26,11 @@ class TweetDao
     @return aa MondoDB Cursor, which can be iterated over
 =end
     def getTweets(tweet_ids, before_date=nil, after_date=nil)
+        # if there's no list of ids, we'll just return an empty list
+        if not tweet_ids
+            return []
+        end
+
         query = {
             '_id' => {'$in' => tweet_ids}
         }
