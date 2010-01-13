@@ -13,8 +13,45 @@ class AuthenticatedService
         @unfollowProcessors = unfollowProcessors
     end
 
+=begin
+    Save the user info for an existing user.
+
+    Expects:
+    {
+        "method": "saveUserInfo",
+        "username": username,
+        "user": {
+            "username": username,
+            "password": password,
+            "email": email,
+            "pretty_name": pretty_name
+        }
+    }
+=end
     def saveUserInfo(payload)
-        {"status"=>"success"}
+        username = payload["username"]
+        info = payload["user"]
+
+        if not username or not info or not info["username"] or not info["password"] or not info["email"] or not info["pretty_name"]
+            raise "Illegal argument: missing parameter"
+        end
+
+        if username != info["username"]
+            raise "Illegal argument: Cannot change the username"
+        end
+
+        user = @userDao.getByUsername(username)
+        if not user
+            raise "User not found"
+        end
+
+        user["password"] = info["password"]
+        user["email"] = info["email"]
+        user["pretty_name"] = info["pretty_name"]
+
+        @userDao.save(user)
+
+        {"status" => "success"}
     end
 
 =begin

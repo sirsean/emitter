@@ -13,6 +13,7 @@ class Settings
             "api_version" => "0.0.1a",
             "db_name" => "ot2",
             "timeline" => "localhost:4567",
+            "standalone" => false,
         }
         # override any of the default values with the ones in the given settings hash
         settings.keys.each{ |key|

@@ -36,6 +36,10 @@ class ServerService
             raise "Illegal argument: missing parameter"
         end
 
+        if @settings["standalone"] and (follower["timeline"] != @settings["timeline"])
+            return {"status" => "fail", "error" => "Can't follow across timelines in standalone mode"}
+        end
+
         user = @userDao.getByUsername(username)
         if not user
             raise "User not found"
@@ -74,6 +78,10 @@ class ServerService
             raise "Illegal argument: missing parameter"
         end
 
+        if @settings["standalone"] and (follower["timeline"] != @settings["timeline"])
+            return {"status" => "fail", "error" => "Can't follow across timelines in standalone mode"}
+        end
+
         user = @userDao.getByUsername(username)
         if not user
             raise "User not found"
@@ -101,6 +109,10 @@ class ServerService
     def forwardPostTweet(payload)
         usernames = payload["usernames"]
         tweet = payload["tweet"]
+
+        if @settings["standalone"] and (tweet["timeline"] != @settings["timeline"])
+            return {"status" => "fail", "error" => "Can't follow across timelines in standalone mode"}
+        end
 
         # save the remote id so we know what id the tweet is on the remote server that sent this to us
         tweet["remote_id"] = tweet['_id']
