@@ -8,7 +8,9 @@ require 'service/AuthenticatedService'
 require 'service/ServerService'
 require 'dao/UserDao'
 require 'dao/TweetDao'
+require 'dao/SessionDao'
 require 'remote/RemoteServerService'
+require 'local/SessionService'
 require 'processor/ForwardTweetProcessor'
 require 'processor/ForwardFollowProcessor'
 require 'processor/ForwardUnfollowProcessor'
@@ -24,9 +26,11 @@ db = Mongo::Connection.new.db(settings["db_name"])
 # set up the DAOs
 userDao = UserDao.new(db["users"])
 tweetDao = TweetDao.new(db["tweets"])
+sessionDao = SessionDao.new(db["sessions"])
 
 # set up helper services
 remoteServerService = RemoteServerService.new
+sessionService = SessionService.new(settings, sessionDao)
 
 # set up pre/post-processors for any actions that'll require them
 authenticatedProcessor = AuthenticatedProcessor.new(settings, userDao)
@@ -177,6 +181,9 @@ post '/signup/?' do
         end
 
         # set up the session here to effective log them in
+        session = {"username" => user["username"]}
+        sessionService.save(session)
+        response.set_cookie("session_id", session[:_id])
 
         redirect "/user/#{user['username']}/"
     else
@@ -203,6 +210,13 @@ end
     Destroy the session and go back to the homepage
 =end
 get '/logout/?' do
+    session = sessionService.get(Mongo::ObjectID.from_string(request.cookies["session_id"]))
+    if session
+        sessionService.delete(session)
+        response.set_cookie("session_id", nil)
+    end
+
+    redirect "/"
 end
 
 =begin
@@ -211,6 +225,8 @@ end
     If there is a logged in user AND it's the user that's being viewed, then we show the timeline; otherwise, we just show the emissions they posted
 =end
 get '/user/:username/?' do |username|
+    session = sessionService.get(Mongo::ObjectID.from_string(request.cookies["session_id"]))
+    puts session.inspect
     @user = publicService.getUserInfo(username)
     @emissions = publicService.getEmissions(username)
 
