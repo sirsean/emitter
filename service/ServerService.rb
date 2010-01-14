@@ -10,6 +10,9 @@ class ServerService
         @tweetDao = tweetDao
     end
 
+=begin
+    Get the version of the API that's running here.
+=end
     def getApiVersion(payload)
         {"version" => @settings["api_version"]}
     end
@@ -17,21 +20,10 @@ class ServerService
 =begin
     A user on another timeline server has followed a user on this timeline server. Here, we update the "followers" list so that we can keep track of the number of followers across timeline servers.
 
-    Expects:
-    {
-        "method": "forwardFollow",
-        "username": username,
-        "follower": {
-            "username": username,
-            "timeline": timeline
-        }
-    }
-
+    @param username
+    @param follower - {username, timeline}
 =end
-    def forwardFollow(payload)
-        username = payload['username']
-        follower = payload['follower']
-
+    def forwardFollow(username, follower)
         if not username or not follower or not follower["username"] or not follower["timeline"]
             raise "Illegal argument: missing parameter"
         end
@@ -59,21 +51,10 @@ class ServerService
 =begin
     A user on another timeline server has followed a user on this timeline server. Here, we update the "followers" list so that we can keep track of the number of followers across timeline servers.
 
-    Expects:
-    {
-        "method": "forwardUnfollow",
-        "username": username,
-        "follower": {
-            "username": username,
-            "timeline": timeline
-        }
-    }
-
+    @param username
+    @param follower - {username, timeline}
 =end
-    def forwardUnfollow(payload)
-        username = payload['username']
-        follower = payload['follower']
-
+    def forwardUnfollow(username, follower)
         if not username or not follower or not follower['username'] or not follower['timeline']
             raise "Illegal argument: missing parameter"
         end
@@ -99,35 +80,30 @@ class ServerService
     end
 
 =begin
-    Expects:
-    {
-        "method": "forwardPostTweet",
-        "usernames": usernames,
-        "tweet": tweet (the _id field should not be set)
-    }
-=end
-    def forwardPostTweet(payload)
-        usernames = payload["usernames"]
-        tweet = payload["tweet"]
+    Accept a forwarded emission from another timeline.
 
-        if @settings["standalone"] and (tweet["timeline"] != @settings["timeline"])
+    @param usernames - a list of usernames to put an emission into their timelines
+    @param emission
+=end
+    def forwardPostTweet(usernames, emission)
+        if @settings["standalone"] and (emission["timeline"] != @settings["timeline"])
             return {"status" => "fail", "error" => "Can't follow across timelines in standalone mode"}
         end
 
-        # save the remote id so we know what id the tweet is on the remote server that sent this to us
-        tweet["remote_id"] = tweet['_id']
-        tweet.delete('_id')
-        tweet["local_posted_date"] = Time.now()
+        # save the remote id so we know what id the emission is on the remote server that sent this to us
+        emission["remote_id"] = emission['_id']
+        emission.delete('_id')
+        emission["local_posted_date"] = Time.now()
 
-        @tweetDao.save(tweet)
+        @tweetDao.save(emission)
 
         usernames.each { |username|
             user = @userDao.getByUsername(username)
-            if user and @userDao.isFollowing(username, {"username"=>tweet["username"], "timeline"=>tweet["timeline"]})
+            if user and @userDao.isFollowing(username, {"username"=>emission["username"], "timeline"=>emission["timeline"]})
                 if not user["timeline"]
                     user["timeline"] = []
                 end
-                user["timeline"] = user["timeline"].insert(0, tweet[:_id])
+                user["timeline"] = user["timeline"].insert(0, emission[:_id])
                 @userDao.save(user)
             end
         }

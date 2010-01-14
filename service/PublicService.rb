@@ -1,3 +1,4 @@
+require 'Time'
 
 =begin
     A service whose methods require no authentication.
@@ -10,57 +11,47 @@ class PublicService
         @tweetDao = tweetDao
     end
 
-    # Expects the following:
-    # {
-    #   "method": "createUser",
-    #   "user": {
-    #       "username": username,
-    #       "password": password,
-    #       "email": email,
-    #       "pretty_name": pretty_name
-    #   }
-    # }
-    def createUser(payload)
-        username = payload['user']['username']
-        password = payload['user']['password']
-        email = payload['user']['email']
-        pretty_name = payload['user']['pretty_name']
+=begin
+    Create a new user.
+
+    @param user - {"username", "password", "email", "pretty_name"}
+=end
+    def createUser(user)
+        username = user['username']
+        password = user['password']
+        email = user['email']
+        pretty_name = user['pretty_name']
 
         if not username or not password or not email or not pretty_name
             raise "Illegal argument: missing parameter"
         end
 
         # check if the user already exists
-        user = @userDao.getByUsername(username)
-        if user
+        existing = @userDao.getByUsername(username)
+        if existing
             raise "Illegal argument: username already exists"
         end
 
         # create the user
-        user = {
+        saved = {
             "username" => username,
             "password" => password,
             "email" => email,
             "pretty_name" => pretty_name
         }
 
-        @userDao.save(user)
+        @userDao.save(saved)
 
-        user
+        saved
     end
 
 =begin
     Get a user's information.
 
-    Expects:
-    {
-        "method": "getUserInfo",
-        "username": username
-    }
+    @param username
+    @return basic user information
 =end
-    def getUserInfo(payload)
-        username = payload['username']
-
+    def getUserInfo(username)
         user = @userDao.getByUsername(username)
         if not user
             raise "User not found"
@@ -76,15 +67,10 @@ class PublicService
 =begin
     Get the users that a user is following.
 
-    Expects:
-    {
-        "method": "getFollowing",
-        "username": username
-    }
+    @param username
+    @return a list of user hashes of the users the given user is following
 =end
-    def getFollowing(payload)
-        username = payload["username"]
-
+    def getFollowing(username)
         if not username
             raise "Illegal argument: missing username"
         end
@@ -104,15 +90,10 @@ class PublicService
 =begin
     Get the users that are following a user.
 
-    Expects:
-    {
-        "method": "getFollowers",
-        "username": username
-    }
+    @param username
+    @return a list of user hashes of the users that are following the given user
 =end
-    def getFollowers(payload)
-        username = payload["username"]
-
+    def getFollowers(username)
         if not username
             raise "Illegal argument: missing username"
         end
@@ -130,28 +111,23 @@ class PublicService
     end
 
 =begin
-    Get a user's tweets. You can let it give you just the most recent ones, or limit it by date ranges if you want.
+    Get a user's emissions. You can let it give you just the most recent ones, or limit it by date ranges if you want.
 
-    Expects:
-    {
-        "method": "getTweets",
-        "username": username,
-        "after_date": afterDate, (optional)
-        "before_date": beforeDate (optional)
-    }
+    @param username
+    @param after_date (optional) - limit it to emissions after this date
+    @param before_date (optional) - limit it to emissions before this date
+    @return a list of emission hashes
 =end
-    def getTweets(payload)
-        username = payload['username']
-
+    def getEmissions(username, after_date=nil, before_date=nil)
         if not username
             raise "Illegal argument: missing username"
         end
 
-        if payload["after_date"]
-            afterDate = DateTime.parse(payload["after_date"])
+        if after_date and not after_date.empty?
+            after_date = Time.parse(after_date)
         end
-        if payload["before_date"]
-            beforeDate = DateTime.parse(payload["before_date"])
+        if before_date and not before_date.empty?
+            before_date = Time.parse(before_date)
         end
 
         user = @userDao.getByUsername(username)

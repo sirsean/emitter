@@ -1,3 +1,4 @@
+require 'Time'
 
 =begin
     A service whose methods require a user to be authenticated.
@@ -16,17 +17,11 @@ class AuthenticatedService
 =begin
     Authenticate a user and return the user info object.
 
-    Expects:
-    {
-        "method": "authenticate",
-        "username": username,
-        "password": password
-    }
+    @param username
+    @param password
+    @return the user matching the given username/password, if any
 =end
-    def authenticate(payload)
-        username = payload["username"]
-        password = payload["password"]
-
+    def authenticate(username, password)
         if not username or not password
             raise "Illegal argument: missing parameter"
         end
@@ -47,22 +42,10 @@ class AuthenticatedService
 =begin
     Save the user info for an existing user.
 
-    Expects:
-    {
-        "method": "saveUserInfo",
-        "username": username,
-        "user": {
-            "username": username,
-            "password": password,
-            "email": email,
-            "pretty_name": pretty_name
-        }
-    }
+    @param username
+    @param info - {username, password, email, pretty_name}
 =end
-    def saveUserInfo(payload)
-        username = payload["username"]
-        info = payload["user"]
-
+    def saveUserInfo(username, info)
         if not username or not info or not info["username"] or not info["password"] or not info["email"] or not info["pretty_name"]
             raise "Illegal argument: missing parameter"
         end
@@ -87,21 +70,12 @@ class AuthenticatedService
 
 =begin
     Follow another user (possibly on a different timeline)
-    Expects:
-    {
-        "method": "follow",
-        "username": username,
-        "to_follow": {
-            "username": username,
-            "timeline": timeline
-        }
-    }
-=end
-    def follow(payload)
-        username = payload['username']
-        toFollow = payload['to_follow']
 
-        if not username or not toFollow or not toFollow['username'] or not toFollow['timeline']
+    @param username
+    @param to_follow - {username, timeline}
+=end
+    def follow(username, to_follow)
+        if not username or not to_follow or not to_follow['username'] or not to_follow['timeline']
             raise "Illegal Argument: missing parameter"
         end
 
@@ -111,7 +85,7 @@ class AuthenticatedService
         end
 
         # determine if the user is already following the given user
-        if @userDao.isFollowing(username, toFollow)
+        if @userDao.isFollowing(username, to_follow)
             raise "Already following that user!"
         end
 
@@ -132,21 +106,12 @@ class AuthenticatedService
 
 =begin
     Follow another user (possibly on a different timeline)
-    Expects:
-    {
-        "method": "unfollow",
-        "username": username,
-        "to_unfollow": {
-            "username": username,
-            "timeline": timeline
-        }
-    }
-=end
-    def unfollow(payload)
-        username = payload['username']
-        toUnfollow = payload['to_unfollow']
 
-        if not username or not toUnfollow or not toUnfollow['username'] or not toUnfollow['timeline']
+    @param username
+    @param to_unfollow - {username, timeline}
+=end
+    def unfollow(username, to_unfollow)
+        if not username or not to_unfollow or not to_unfollow['username'] or not to_unfollow['timeline']
             raise "Illegal Argument: missing parameter"
         end
 
@@ -156,7 +121,7 @@ class AuthenticatedService
         end
 
         # determine if the user is currently following the given user
-        if not @userDao.isFollowing(username, toUnfollow)
+        if not @userDao.isFollowing(username, to_unfollow)
             raise "Not following that user"
         end
 
@@ -165,7 +130,7 @@ class AuthenticatedService
             user["following"] = []
         end
 
-        user["following"].delete(toUnfollow)
+        user["following"].delete(to_unfollow)
 
         @userDao.save(user)
 
@@ -178,18 +143,12 @@ class AuthenticatedService
     end
 
 =begin
-    Post a tweet to your timeline.
-    Expects:
-    {
-        "method": "postTweet",
-        "username": username,
-        "metadata": metadata (object)
-    }
+    Post an emission to your timeline.
+
+    @param username
+    @param metadata
 =end
-    def postTweet(payload)
-        username = payload["username"]
-        metadata = payload["metadata"]
-        
+    def emit(username, metadata)
         if not username or not metadata
             raise "Illegal Argument: missing parameter"
         end
@@ -231,19 +190,11 @@ class AuthenticatedService
 =begin
     Get the tweets in a user's timeline. If they specify two dates, we'll return _everything_ in that date range, but if they specify either one or zero dates, we limit the response to 25 tweets.
 
-    Expects:
-    {
-        "method": "getTimeline",
-        "username": username,
-        "before_date": before_date (optional),
-        "after_date": after_date (optional)
-    }
+    @param username
+    @param after_date (optional) - limit it to emissions after this date
+    @param before_date (optional) - limit it to emissions before this date
 =end
-    def getTimeline(payload)
-        username = payload['username']
-        before_date = payload['before_date']
-        after_date = payload['after_date']
-
+    def getTimeline(username, after_date=nil, before_date=nil)
         if not username
             raise "Illegal argument: missing parameter"
         end
@@ -253,13 +204,20 @@ class AuthenticatedService
             raise "User not found"
         end
 
+        if after_date and not after_date.empty?
+            after_date = Time.parse(after_date)
+        end
+        if before_date and not before_date.empty?
+            before_date = Time.parse(before_date)
+        end
+
         if not user['timeline']
             user['timeline'] = []
         end
 
         tweets = @tweetDao.getTweets(user['timeline'], before_date, after_date)
 
-        if not before_date or not after_date
+        if not before_date and not after_date
             tweets = tweets.map{|t| t}[0..24]
         end
 

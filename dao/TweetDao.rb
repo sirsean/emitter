@@ -18,6 +18,16 @@ class TweetDao
     end
 
 =begin
+    Get a single tweet by its id.
+
+    @param id
+    @return the tweet
+=end
+    def get(id)
+        @tweetCollection.find_one('_id' => id)
+    end
+
+=begin
     Get a list of tweets based on a list of ids, with an optional date range.
 
     @param tweet_ids - a list of ids

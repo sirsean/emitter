@@ -40,36 +40,65 @@ unfollowProcessors = [
     ForwardUnfollowProcessor.new(settings, remoteServerService)
 ]
 
-# set up the remoted services, in order of preference (note that no method name can be shared across services)
-services = {
-    "PublicService" => { "service" => PublicService.new(settings, userDao, tweetDao) },
-    "AuthenticatedService" => { "service" => AuthenticatedService.new(settings, userDao, tweetDao, postTweetProcessors, followProcessors, unfollowProcessors), "preProcessors" => [authenticatedProcessor] },
-    "ServerService" => { "service" => ServerService.new(settings, userDao, tweetDao) },
-}
+# set up the remoted services
+publicService = PublicService.new(settings, userDao, tweetDao)
+authenticatedService = AuthenticatedService.new(settings, userDao, tweetDao, postTweetProcessors, followProcessors, unfollowProcessors)
+serverService = ServerService.new(settings, userDao, tweetDao)
+
+# these methods need to run the AuthenticatedProcessor before they can be called
+authenticated_methods = [
+    "authenticate",
+    "saveUserInfo",
+    "follow",
+    "unfollow",
+    "emit",
+    "getTimeline",
+]
 
 post '/api/?' do
     payload = JSON.parse(params[:payload])
     puts payload.inspect
-    for service_name in services.keys
-        service = services[service_name]
-        begin
-            if service["preProcessors"]
-                service["preProcessors"].each{ |processor|
-                    processor.process(payload)
-                }
-            end
-            result = service["service"].send(payload['method'], payload)
-            break
-        rescue NoMethodError
-            # we're going to continue on to the next service, if there is one
-            puts "Failed"
-            puts $ERROR_INFO.inspect
-        rescue
-            puts "There was actually an error!"
-            puts $ERROR_INFO.inspect
-            result = {"error" => $ERROR_INFO.message}
-            break
+    begin
+        if authenticated_methods.include?(payload["method"])
+            authenticatedProcessor.process(payload)
         end
+        result = 
+            case payload["method"]
+                when "createUser"
+                    publicService.createUser(payload["user"])
+                when "getUserInfo"
+                    publicService.getUserInfo(payload["username"])
+                when "getFollowing"
+                    publicService.getFollowing(payload["username"])
+                when "getFollowers"
+                    publicService.getFollowers(payload["username"])
+                when "getEmissions"
+                    publicService.getEmissions(payload["username"], payload["after_date"], payload["before_date"])
+                when "authenticate"
+                    authenticatedService.authenticate(payload["username"], payload["password"])
+                when "saveUserInfo"
+                    authenticatedService.saveUserInfo(payload["username"], payload["user"])
+                when "follow"
+                    authenticatedService.follow(payload["username"], payload["to_follow"])
+                when "unfollow"
+                    authenticatedService.unfollow(payload["username"], payload["to_unfollow"])
+                when "emit"
+                    authenticatedService.emit(payload["username"], payload["metadata"])
+                when "getTimeline"
+                    authenticatedService.getTimeline(payload["username"], payload["after_date"], payload["before_date"])
+                when "getApiVersion"
+                    serverService.getApiVersion()
+                when "forwardFollow"
+                    serverService.forwardFollow(payload["username"], payload["follower"])
+                when "forwardUnfollow"
+                    serverService.forwardUnfollow(payload["username"], payload["follower"])
+                when "forwardEmit"
+                    serverService.forwardEmit(payload["usernames"], payload["emission"])
+            end
+    rescue
+        puts "Error"
+        puts $ERROR_INFO.inspect
+        result = {"error" => $ERROR_INFO.inspect}
     end
     if not result
         result = {"error"=>"No such method", "method"=>payload["method"]}
@@ -94,7 +123,6 @@ end
     Display the signup screen
 =end
 get '/signup/?' do
-    puts services["PublicService"]["service"]
     haml :signup
 end
 
@@ -133,18 +161,16 @@ post '/signup/?' do
     end
 
     if @errors.length == 0
-        payload = {
-            "user" => {
-                "username" => @username,
-                "password" => @password1,
-                "email" => @email,
-                "pretty_name" => @pretty_name
-            }
+        user = {
+            "username" => @username,
+            "password" => @password1,
+            "email" => @email,
+            "pretty_name" => @pretty_name
         }
 
         # save the user
         begin
-            user = services["PublicService"]["service"].createUser(payload)
+            user = publicService.createUser(user)
         rescue
             @errors << $ERROR_INFO.message
             return haml :signup
@@ -181,28 +207,43 @@ end
 
 =begin
     A user's main page that displays a list of their emissions
+
+    If there is a logged in user AND it's the user that's being viewed, then we show the timeline; otherwise, we just show the emissions they posted
 =end
 get '/user/:username/?' do |username|
-    puts "showing #{username}"
-    username
+    @user = publicService.getUserInfo(username)
+    @emissions = publicService.getEmissions(username)
+
+    "User #{@user['username']} has #{@emissions.length} emissions"
 end
 
 =begin
     Show a list of the users that a user is following
 =end
 get '/user/:username/following/?' do |username|
+    @user = publicService.getUser(username)
+    @following = publicService.getFollowing(username)
+
+    "User #{@user['username']} is following #{@following.length} users"
 end
 
 =begin
     Show a list of the users that are following a particular user
 =end
 get '/user/:username/followers/?' do |username|
+    @user = publicService.getUser(username)
+    @followers = publicService.getFollowers(username)
+
+    "User #{@user['username']} has #{@followers.length} followers"
 end
 
 =begin
     Show an individual emission
 =end
 get '/emission/:emission_id/?' do |emission_id|
+    @emission = tweetDao.get(Mongo::ObjectID.from_string(emission_id))
+
+    @emission.inspect
 end
 
 # protected (require authentication)
