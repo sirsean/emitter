@@ -1,2 +1,7 @@
-#content
-    .hi= "This is the index, go to /test to test it out"
+%html
+    %head
+        %script{:src => "/script/jquery-1.3.2.js"}
+        %script{:src => "/script/emitter.js"}
+    %body
+        #content
+            .hi= "This is the index, go to /test to test it out"

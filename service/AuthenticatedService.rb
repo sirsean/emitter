@@ -14,6 +14,37 @@ class AuthenticatedService
     end
 
 =begin
+    Authenticate a user and return the user info object.
+
+    Expects:
+    {
+        "method": "authenticate",
+        "username": username,
+        "password": password
+    }
+=end
+    def authenticate(payload)
+        username = payload["username"]
+        password = payload["password"]
+
+        if not username or not password
+            raise "Illegal argument: missing parameter"
+        end
+
+        user = @userDao.getByUsername(username)
+        if not user
+            raise "User not found"
+        end
+
+        if user["password"] != password
+            raise "Invalid password"
+        end
+
+        # the authentication was successful, return the user object
+        user
+    end
+
+=begin
     Save the user info for an existing user.
 
     Expects:
