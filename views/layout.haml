@@ -1,6 +1,7 @@
 %html
     %head
         %title="Emitter"
+        %link{:rel => "stylesheet", :type => "text/css", :href => "/css/main.css"}
     %body
         #header
             %h1="Emitter"
@@ -21,3 +22,8 @@
                     %a{:href => "/user/#{@user["username"]}/following/"}="Following (#{@user["following"].length})"
                 %p
                     %a{:href => "/user/#{@user["username"]}/followers/"}="Followers (#{@user["followers"].length})"
+
+        .clear
+
+        #footer
+            %p="&copy; 2010, Sean Schulte"

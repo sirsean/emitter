@@ -1,0 +1,63 @@
+
+body {
+    width: 800px;
+    margin: 0 auto 0 auto;
+    font-family: Arial, sans-serif;
+}
+
+div#header {
+    background-color: #DDDDDD;
+    padding-left: 10px;
+    border-bottom: 3px solid #888888;
+}
+
+div#main_container {
+    width: 500px;
+    float: left;
+}
+
+div#sidebar {
+    width: 200px;
+    float: right;
+}
+
+div#emit_form {
+    width: 470px;
+    padding: 15px;
+    background-color: #22AAAA;
+    margin-bottom: 15px;
+    margin-top: 10px;
+}
+
+div#emit_form textarea {
+    width: 470px;
+}
+
+div#footer {
+    clear: both;
+    text-align: center;
+    margin-top: 5px;
+    border-top: 2px solid blue;
+}
+
+div#emission_list div.emission {
+    border-left: 3px solid #444444;
+    background-color: #EEEEEE;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+div.single_emission {
+    margin: 20px;
+    padding: 15px;
+    background-color: #449999;
+}
+
+div#user_list div.user {
+    border-left: 4px solid #444444;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 5px;
+}
