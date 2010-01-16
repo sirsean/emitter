@@ -11,13 +11,14 @@ require 'dao/UserDao'
 require 'dao/TweetDao'
 require 'dao/SessionDao'
 require 'remote/RemoteServerService'
-require 'local/SessionService'
 require 'processor/ForwardTweetProcessor'
 require 'processor/ForwardFollowProcessor'
 require 'processor/ForwardUnfollowProcessor'
 require 'processor/AuthenticatedProcessor'
 require 'processor/InsertEmissionIntoLocalTimelineProcessor'
 require 'Settings'
+
+enable :sessions
 
 # load the settings
 settings = Settings::load()
@@ -32,7 +33,6 @@ sessionDao = SessionDao.new(db["sessions"])
 
 # set up helper services
 remoteServerService = RemoteServerService.new
-sessionService = SessionService.new(settings, sessionDao)
 
 # set up pre/post-processors for any actions that'll require them
 authenticatedProcessor = AuthenticatedProcessor.new(settings, userDao)
@@ -121,6 +121,7 @@ end
 # these are for the web UI
 
 get '/?' do
+    @session = sessionDao.get(session["session_id"])
     haml :index
 end
 
@@ -184,9 +185,9 @@ post '/signup/?' do
         end
 
         # set up the session here to effective log them in
-        session = {"username" => user["username"]}
-        sessionService.save(session)
-        response.set_cookie("session_id", session[:_id])
+        @session = {"username" => user["username"]}
+        sessionDao.save(@session)
+        session["session_id"] = @session[:_id]
 
         redirect "/user/#{user['username']}/"
     else
@@ -199,9 +200,11 @@ end
     Display the login screen
 =end
 get '/login/?' do
-    session = sessionService.get(Mongo::ObjectID.from_string(request.cookies["session_id"]))
-    if session
-        redirect "/users/#{session['username']}/"
+    @session = sessionDao.get(session["session_id"])
+    puts @session
+    if @session
+        puts "already logged in"
+        redirect "/home/"
     else
         haml :login
     end
@@ -214,12 +217,13 @@ end
 =end
 post '/login/?' do
     if userDao.authenticateUser(params["username"], params["password"])
-        session = {"username" => params["username"]}
-        sessionService.save(session)
-        response.set_cookie("session_id", session[:_id])
+        @session = {"username" => params["username"]}
+        sessionDao.save(@session)
+        session["session_id"] = @session[:_id]
 
-        redirect "/user/#{params['username']}/"
+        redirect "/home/"
     else
+        @username = params["username"]
         @errors = [ "Invalid login" ]
 
         haml :login
@@ -230,10 +234,12 @@ end
     Destroy the session and go back to the homepage
 =end
 get '/logout/?' do
-    session = sessionService.get(Mongo::ObjectID.from_string(request.cookies["session_id"]))
-    if session
-        sessionService.delete(session)
-        response.set_cookie("session_id", nil)
+    @session = sessionDao.get(session["session_id"])
+    puts @session
+    if @session
+        puts "deleting session"
+        sessionDao.delete(@session)
+        session["session_id"] = nil
     end
 
     redirect "/"
@@ -245,18 +251,14 @@ end
     If you're not logged in, you can't come here
 =end
 get '/home/?' do
-    session = sessionService.getSession(request)
-    if session
-        @user = userDao.getByUsername(session["username"])
-        if not @user["timeline"]
-            @user["timeline"] = []
-        end
-        @user["tweets"] = [] unless @user["tweets"]
-        @user["followers"] = [] unless @user["followers"]
-        @user["following"] = [] unless @user["following"]
+    @session = sessionDao.get(session["session_id"])
+    puts @session
+    if @session
+        @user = userDao.getByUsername(@session["username"])
         @emissions = tweetDao.getTweets(@user["timeline"])
         haml :home
     else
+        puts "not logged in"
         redirect "/login/"
     end
 end
@@ -265,9 +267,8 @@ end
     A user's main page that displays a list of their emissions
 =end
 get '/user/:username/?' do |username|
-    session = sessionService.get(Mongo::ObjectID.from_string(request.cookies["session_id"]))
-    puts session.inspect
-    @user = publicService.getUserInfo(username)
+    @session = sessionDao.get(session["session_id"])
+    @user = userDao.getByUsername(username)
     @emissions = publicService.getEmissions(username)
 
     "User #{@user['username']} has #{@emissions.length} emissions"
@@ -277,7 +278,8 @@ end
     Show a list of the users that a user is following
 =end
 get '/user/:username/following/?' do |username|
-    @user = publicService.getUserInfo(username)
+    @session = sessionDao.get(session["session_id"])
+    @user = userDao.getByUsername(username)
     @following = publicService.getFollowing(username)
 
     haml :following
@@ -287,16 +289,18 @@ end
     Show a list of the users that are following a particular user
 =end
 get '/user/:username/followers/?' do |username|
-    @user = publicService.getUser(username)
+    @session = sessionDao.get(session["session_id"])
+    @user = userDao.getByUsername(username)
     @followers = publicService.getFollowers(username)
 
-    "User #{@user['username']} has #{@followers.length} followers"
+    haml :followers
 end
 
 =begin
     Show an individual emission
 =end
 get '/emission/:emission_id/?' do |emission_id|
+    @session = sessionDao.get(session["session_id"])
     @emission = tweetDao.get(Mongo::ObjectID.from_string(emission_id))
 
     @emission.inspect
@@ -320,10 +324,10 @@ end
     Post a new emission
 =end
 post '/emit/?' do
-    session = sessionService.getSession(request)
-    if session
+    @session = sessionDao.get(session["session_id"])
+    if @session
         puts params.inspect
-        authenticatedService.emit(session["username"], params)
+        authenticatedService.emit(@session["username"], params)
         redirect "/home"
     else
         redirect "/login"

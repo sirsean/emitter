@@ -1,0 +1,22 @@
+%html
+    %head
+        %title="Emitter"
+    %body
+        #header
+            %h1="Emitter"
+            - if @session
+                %a{:href => "/logout/"}="Logout"
+            - else
+                %a{:href => "/login/"}="Login"
+                or
+                %a{:href => "/signup/"}="Signup"
+
+        #main_container
+            = yield
+
+        #sidebar
+            - if @user
+                %p
+                    %a{:href => "/user/#{@user["username"]}/following/"}="Following (#{@user["following"].length})"
+                %p
+                    %a{:href => "/user/#{@user["username"]}/followers/"}="Followers (#{@user["followers"].length})"

@@ -17,7 +17,12 @@ class UserDao
     def getByUsername(username)
         users = @userCollection.find("username" => username)
         if users.count() > 0
-            return users.first
+            user = users.first
+            user["timeline"] = [] unless user["timeline"]
+            user["tweets"] = [] unless user["tweets"]
+            user["followers"] = [] unless user["followers"]
+            user["following"] = [] unless user["following"]
+            return user
         else
             return nil
         end

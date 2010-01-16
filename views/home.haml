@@ -14,8 +14,3 @@
             %p= emission["username"]
             %p= emission["metadata"]["content"]
 
-#sidebar
-    %p
-        %a{:href => "/user/#{@user["username"]}/following/"}="Following (#{@user["following"].length})"
-    %p
-        %a{:href => "/user/#{@user["username"]}/followers/"}="Followers (#{@user["followers"].length})"

@@ -1,6 +1,8 @@
 
 %h2="Following"
 
+%p="#{@user["username"]} is following #{@following.length} user#{"s" unless @following.length == 1}"
+
 - @following.each do |following|
     .user
         %a{:href => "http://#{following["timeline"]}/user/#{following["username"]}/"}=following["username"]
