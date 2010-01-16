@@ -5,6 +5,7 @@
         #header
             %h1="Emitter"
             - if @session
+                %a{:href => "/home/"}="Home"
                 %a{:href => "/logout/"}="Logout"
             - else
                 %a{:href => "/login/"}="Login"

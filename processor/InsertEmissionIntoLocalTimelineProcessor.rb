@@ -19,7 +19,7 @@ class InsertEmissionIntoLocalTimelineProcessor
             user["followers"].find_all{ |follower| 
                 follower["timeline"] == @settings["timeline"] 
             }.find_all{ |follower|
-                @userDao.isFollowing(follower["username"], {"username"=>user["username"], "timeline"=>user["timeline"]})
+                @userDao.isFollowing(follower["username"], {"username"=>user["username"], "timeline"=>@settings["timeline"]})
             }.each{ |follower|
                 localUser = @userDao.getByUsername(follower["username"])
                 if localUser
