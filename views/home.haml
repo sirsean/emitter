@@ -2,7 +2,7 @@
 
 #emit_form
     %form{:action=>"/emit/", :method=>"post"}
-        %span="What are you doing?"
+        %span="What are you thinking?"
         %br
         %textarea{:name => "content", :rows => 6}
         %br
@@ -13,3 +13,9 @@
         .emission
             %p= emission["username"]
             %p= emission["metadata"]["content"]
+
+#sidebar
+    %p
+        %a{:href => "/user/#{@user["username"]}/following/"}="Following (#{@user["following"].length})"
+    %p
+        %a{:href => "/user/#{@user["username"]}/followers/"}="Followers (#{@user["followers"].length})"

@@ -248,6 +248,12 @@ get '/home/?' do
     session = sessionService.getSession(request)
     if session
         @user = userDao.getByUsername(session["username"])
+        if not @user["timeline"]
+            @user["timeline"] = []
+        end
+        @user["tweets"] = [] unless @user["tweets"]
+        @user["followers"] = [] unless @user["followers"]
+        @user["following"] = [] unless @user["following"]
         @emissions = tweetDao.getTweets(@user["timeline"])
         haml :home
     else
@@ -271,10 +277,10 @@ end
     Show a list of the users that a user is following
 =end
 get '/user/:username/following/?' do |username|
-    @user = publicService.getUser(username)
+    @user = publicService.getUserInfo(username)
     @following = publicService.getFollowing(username)
 
-    "User #{@user['username']} is following #{@following.length} users"
+    haml :following
 end
 
 =begin
