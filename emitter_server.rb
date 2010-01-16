@@ -270,8 +270,12 @@ get '/user/:username/?' do |username|
     @session = sessionDao.get(session["session_id"])
     @user = userDao.getByUsername(username)
     @emissions = publicService.getEmissions(username)
+    @is_you = (@session["username"] == username)
+    if not @is_you
+        @is_following = userDao.isFollowing(@session["username"], {"username" => username, "timeline" => settings["timeline"]})
+    end
 
-    "User #{@user['username']} has #{@emissions.length} emissions"
+    haml :user
 end
 
 =begin
@@ -311,13 +315,27 @@ end
 =begin
     Follow another user
 =end
-post '/user/:username/follow/?' do |username|
+get '/user/:username/follow/?' do |username|
+    @session = sessionDao.get(session["session_id"])
+    if @session
+        authenticatedService.follow(@session["username"], {"username" => username, "timeline" => settings["timeline"]})
+        redirect "/user/#{username}/"
+    else
+        redirect "/login/"
+    end
 end
 
 =begin
     Unfollow another user
 =end
-post '/user/:username/unfollow/?' do |username|
+get '/user/:username/unfollow/?' do |username|
+    @session = sessionDao.get(session["session_id"])
+    if @session
+        authenticatedService.unfollow(@session["username"], {"username" => username, "timeline" => settings["timeline"]})
+        redirect "/user/#{username}/"
+    else
+        redirect "/login/"
+    end
 end
 
 =begin

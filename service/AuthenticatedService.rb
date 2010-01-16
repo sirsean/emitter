@@ -92,12 +92,12 @@ class AuthenticatedService
             user["following"] = []
         end
 
-        user["following"].push(toFollow)
+        user["following"] << to_follow
 
         @userDao.save(user)
 
         @followProcessors.each{ |processor|
-            processor.process(username, toFollow)
+            processor.process(username, to_follow)
         }
 
         {"status"=>"success"}
@@ -135,7 +135,7 @@ class AuthenticatedService
 
         # forward on to the server service
         @unfollowProcessors.each{ |processor|
-            processor.process(username, toUnfollow)
+            processor.process(username, to_unfollow)
         }
 
         {"status"=>"success"}

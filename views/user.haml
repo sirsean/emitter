@@ -1,0 +1,18 @@
+
+%h2=@user["username"]
+
+- if @is_you
+    %p="This is you!"
+- elsif @is_following
+    %p
+        %a{:href=>"/user/#{@user["username"]}/unfollow/"}="Unfollow"
+- else
+    %p
+        %a{:href=>"/user/#{@user["username"]}/follow/"}="Follow"
+
+#emission_list
+    - @emissions.each do |emission|
+        .emission
+            %p= emission["username"]
+            %p= emission["metadata"]["content"]
+
