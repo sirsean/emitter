@@ -3,6 +3,7 @@ require 'sinatra'
 require 'haml'
 require 'json'
 require 'mongo'
+require 'Time'
 require 'service/PublicService'
 require 'service/AuthenticatedService'
 require 'service/ServerService'
@@ -15,6 +16,7 @@ require 'processor/ForwardTweetProcessor'
 require 'processor/ForwardFollowProcessor'
 require 'processor/ForwardUnfollowProcessor'
 require 'processor/AuthenticatedProcessor'
+require 'processor/InsertEmissionIntoLocalTimelineProcessor'
 require 'Settings'
 
 # load the settings
@@ -35,6 +37,7 @@ sessionService = SessionService.new(settings, sessionDao)
 # set up pre/post-processors for any actions that'll require them
 authenticatedProcessor = AuthenticatedProcessor.new(settings, userDao)
 postTweetProcessors = [
+    InsertEmissionIntoLocalTimelineProcessor.new(settings, userDao),
     ForwardTweetProcessor.new(settings, remoteServerService)
 ]
 followProcessors = [
@@ -196,6 +199,12 @@ end
     Display the login screen
 =end
 get '/login/?' do
+    session = sessionService.get(Mongo::ObjectID.from_string(request.cookies["session_id"]))
+    if session
+        redirect "/users/#{session['username']}/"
+    else
+        haml :login
+    end
 end
 
 =begin
@@ -204,6 +213,17 @@ end
     This should authenticate the user, set up a session and move along to the user's main page
 =end
 post '/login/?' do
+    if userDao.authenticateUser(params["username"], params["password"])
+        session = {"username" => params["username"]}
+        sessionService.save(session)
+        response.set_cookie("session_id", session[:_id])
+
+        redirect "/user/#{params['username']}/"
+    else
+        @errors = [ "Invalid login" ]
+
+        haml :login
+    end
 end
 
 =begin
@@ -220,9 +240,23 @@ get '/logout/?' do
 end
 
 =begin
-    A user's main page that displays a list of their emissions
+    The logged-in user's home screen, which shows their timeline and a form to emit
 
-    If there is a logged in user AND it's the user that's being viewed, then we show the timeline; otherwise, we just show the emissions they posted
+    If you're not logged in, you can't come here
+=end
+get '/home/?' do
+    session = sessionService.getSession(request)
+    if session
+        @user = userDao.getByUsername(session["username"])
+        @emissions = tweetDao.getTweets(@user["timeline"])
+        haml :home
+    else
+        redirect "/login/"
+    end
+end
+
+=begin
+    A user's main page that displays a list of their emissions
 =end
 get '/user/:username/?' do |username|
     session = sessionService.get(Mongo::ObjectID.from_string(request.cookies["session_id"]))
@@ -279,7 +313,15 @@ end
 =begin
     Post a new emission
 =end
-post '/user/:username/emit/?' do |username|
+post '/emit/?' do
+    session = sessionService.getSession(request)
+    if session
+        puts params.inspect
+        authenticatedService.emit(session["username"], params)
+        redirect "/home"
+    else
+        redirect "/login"
+    end
 end
 
 =begin

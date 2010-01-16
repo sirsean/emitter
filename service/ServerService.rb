@@ -85,7 +85,7 @@ class ServerService
     @param usernames - a list of usernames to put an emission into their timelines
     @param emission
 =end
-    def forwardPostTweet(usernames, emission)
+    def forwardEmit(usernames, emission)
         if @settings["standalone"] and (emission["timeline"] != @settings["timeline"])
             return {"status" => "fail", "error" => "Can't follow across timelines in standalone mode"}
         end

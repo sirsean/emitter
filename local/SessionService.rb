@@ -6,6 +6,10 @@ class SessionService
         @sessionDao = sessionDao
     end
 
+    def getSession(request)
+        @sessionDao.get(Mongo::ObjectID.from_string(request.cookies["session_id"]))
+    end
+
     def get(id)
         @sessionDao.get(id)
     end

@@ -51,13 +51,13 @@ class RemoteServerService
     @param followerMap - a timeline->list-of-usernames map
     @param tweet - the tweet to forward to the other timeline servers
 =end
-    def forwardPostTweet(followerMap, tweet)
+    def forwardEmit(followerMap, tweet)
         puts followerMap.inspect
         followerMap.keys().each { |timeline|
             request = {
-                "method" => "forwardPostTweet",
+                "method" => "forwardEmit",
                 "usernames" => followerMap[timeline],
-                "tweet" => tweet
+                "emission" => tweet
             }
             result = Net::HTTP.post_form(URI.parse("http://#{timeline}/api/"), {"payload" => JSON.generate(request)})
         }

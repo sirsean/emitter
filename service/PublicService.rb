@@ -1,4 +1,3 @@
-require 'Time'
 
 =begin
     A service whose methods require no authentication.

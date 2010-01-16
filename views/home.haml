@@ -1,0 +1,15 @@
+
+
+#emit_form
+    %form{:action=>"/emit/", :method=>"post"}
+        %span="What are you doing?"
+        %br
+        %textarea{:name => "content", :rows => 6}
+        %br
+        %input{:type => "submit", :value => "Emit"}
+
+#emission_list
+    - @emissions.each do |emission|
+        .emission
+            %p= emission["username"]
+            %p= emission["metadata"]["content"]
