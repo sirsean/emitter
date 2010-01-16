@@ -13,6 +13,7 @@ Your Mongo server is running! Now you'll need to install some gems:
     gem install sinatra
     gem install json
     gem install haml
+    gem install rdiscount
 
 Then you can run the server:
 
