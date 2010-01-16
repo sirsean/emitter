@@ -11,6 +11,8 @@ Your Mongo server is running! Now you'll need to install some gems:
 
     gem install mongo
     gem install sinatra
+    gem install json
+    gem install haml
 
 Then you can run the server:
 
