@@ -357,3 +357,12 @@ end
 =end
 post '/emission/:emission_id/update/?' do |emission_id|
 end
+
+helpers do
+
+    def display_emission(emission)
+        @emission = emission
+        haml :partial_emission, :layout => false
+    end
+
+end

@@ -12,7 +12,5 @@
 
 #emission_list
     - @emissions.each do |emission|
-        .emission
-            %p= emission["username"]
-            %p= emission["metadata"]["content"]
+        = display_emission(emission)
 
