@@ -149,3 +149,12 @@ div.user_info {
 #errors ul li {
     color: #DD0000;
 }
+
+#profile_menu {
+    background-color: #DF9496;
+    padding: 4px;
+}
+
+#profile_menu a.selected {
+    font-weight: bold;
+}

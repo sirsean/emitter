@@ -339,6 +339,44 @@ post "/profile/password/?" do
 end
 
 =begin
+    Form to allow the user to upload an image to use as their avatar
+=end
+get "/profile/picture/?" do
+    @session = sessionDao.get(session["session_id"])
+    if @session
+        @user = userDao.getByUsername(@session["username"])
+
+        haml :profile_picture
+    else
+        redirect "/login/"
+    end
+end
+
+=begin
+    Handle the user uploading a profile picture
+=end
+post "/profile/picture/?" do
+    @session = sessionDao.get(session["session_id"])
+    if @session
+        @user = userDao.getByUsername(@session["username"])
+
+        if params[:file] and
+                (tmpfile = params[:file][:tempfile]) and
+                (filename = params[:file][:filename])
+            while blk = tmpfile.read(65536)
+            end
+
+            redirect "/profile/picture/"
+        else
+            @errors = ["Missing file"]
+            haml :profile_picture
+        end
+    else
+        redirect "/login/"
+    end
+end
+
+=begin
     The logged-in user's home screen, which shows their timeline and a form to emit
 
     If you're not logged in, you can't come here

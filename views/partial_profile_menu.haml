@@ -1,6 +1,6 @@
 
 #profile_menu
-    %a{:href => "/profile/"}="Account"
-    %a{:href => "/profile/password/"}="Password"
-    %a{:href => "/profile/picture/"}="Picture"
+    %a{:href => "/profile/", :class => "profile_menu_item #{"selected" if @currentProfileScreen == "account"}"}="Account"
+    %a{:href => "/profile/password/", :class => "#{"selected" if @currentProfileScreen == "password"}"}="Password"
+    %a{:href => "/profile/picture/", :class => "#{"selected" if @currentProfileScreen == "picture"}"}="Picture"
 
