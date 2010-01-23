@@ -1,17 +1,18 @@
+/* Perhaps foolishly, I'm using a color scheme from here: http://www.colorcombos.com/color-scheme-125.html */
 
 body {
     width: 800px;
     margin: 0 auto 0 auto;
     font-family: Arial, sans-serif;
-    background-color: #727B84;
+    background-color: #D9E2E1;
 }
 
 div#header {
     width: 790px;
     float: left;
-    background-color: #D9E2E1;
+    background-color: #727B84;
     padding-left: 10px;
-    border-bottom: 3px solid #727B84;
+    border-bottom: 3px solid #DF9496;
 }
 
 div#header div#header_left {
@@ -74,7 +75,7 @@ div#emit_form textarea {
     text-align: center;
     margin-top: 5px;
     border-top: 2px solid #727B84;
-    background-color: #D9E2E1;
+    background-color: #727B84;
     padding-left: 10px;
     padding-right: 10px;
     padding-bottom: 10px;

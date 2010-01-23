@@ -9,6 +9,7 @@
             #header_right
                 - if @session
                     %a{:href => "/home/"}="#{@session["username"]}"
+                    %a{:href => "/profile/"}="Profile"
                     %a{:href => "/logout/"}="Logout"
                 - else
                     %a{:href => "/login/"}="Login"
@@ -22,7 +23,7 @@
 
             #sidebar
                 - if @user
-                    = display_userinfo("User:", @user)
+                    = display_userinfo("User", @user)
 
             .clear
 

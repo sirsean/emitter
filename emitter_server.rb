@@ -246,6 +246,99 @@ get '/logout/?' do
 end
 
 =begin
+    Display the user's profile screen
+
+    If you're not logged in, you can't come here
+=end
+get '/profile/?' do
+    @session = sessionDao.get(session["session_id"])
+    if @session
+        @user = userDao.getByUsername(@session["username"])
+        haml :profile
+    else
+        redirect "/login/"
+    end
+end
+
+=begin
+    Update the user's profile
+=end
+post "/profile/?" do
+    @session = sessionDao.get(session["session_id"])
+    if @session
+        @user = userDao.getByUsername(@session["username"])
+
+        @user["pretty_name"] = params["pretty_name"]
+        @user["email"] = params["email"]
+        @user["bio"] = params["bio"]
+
+        @errors = []
+        if not @user["pretty_name"] or @user["pretty_name"].empty?
+            @errors << "Please enter a name"
+        end
+        if not @user["email"] or @user["email"].empty?
+            @errors << "Please enter an email address"
+        end
+
+        if @errors.length > 0
+            haml :profile
+        else
+            userDao.save(@user)
+
+            redirect "/profile/"
+        end
+    else
+        redirect "/login/"
+    end
+end
+
+=begin
+    Display a form to let someone update their password
+=end
+get "/profile/password/?" do
+    @session = sessionDao.get(session["session_id"])
+    if @session
+        @user = userDao.getByUsername(@session["username"])
+
+        haml :profile_password
+    else
+        redirect "/login/"
+    end
+end
+
+=begin
+    Update the user's password
+=end
+post "/profile/password/?" do
+    @session = sessionDao.get(session["session_id"])
+    if @session
+        @user = userDao.getByUsername(@session["username"])
+
+        @errors = []
+        if @user["password"] != params["currentPassword"]
+            @errors << "Incorrect password"
+        end
+        if not params["password1"] or params["password1"].length < 4
+            @errors << "Password must be at least 4 characters"
+        end
+        if params["password1"] != params["password2"]
+            @errors << "Passwords do not match"
+        end
+
+        if not @errors.empty?
+            haml :profile_password
+        else
+            @user["password"] = params["password1"]
+            userDao.save(@user)
+            @passwordUpdated = true
+            haml :profile_password
+        end
+    else
+        redirect "/login/"
+    end
+end
+
+=begin
     The logged-in user's home screen, which shows their timeline and a form to emit
 
     If you're not logged in, you can't come here
@@ -374,6 +467,11 @@ helpers do
     def display_errors(errors)
         @errors = errors
         haml :partial_errors, :layout => false
+    end
+
+    def display_profile_menu(currentProfileScreen)
+        @currentProfileScreen = currentProfileScreen
+        haml :partial_profile_menu, :layout => false
     end
 
 end

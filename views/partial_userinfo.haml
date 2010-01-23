@@ -1,10 +1,18 @@
 
 .user_info
-    %h4
-        #{@title}
     %p
+        %strong="#{@title}"
         #{@userInfo["username"]}
+    - if @userInfo["bio"] and not @userInfo["bio"].empty?
+        %p
+            %strong="Bio"
+            #{@userInfo["bio"]}
     %p
-        %a{:href => "/user/#{@user["username"]}/following/"}="Following (#{@user["following"].length})"
+        %strong="Emission#{"s" unless @userInfo["tweets"].length == 1}"
+        %a{:href => "/user/#{@userInfo["username"]}/"}="#{@userInfo["tweets"].length}"
     %p
-        %a{:href => "/user/#{@user["username"]}/followers/"}="Followers (#{@user["followers"].length})"
+        %strong="Following"
+        %a{:href => "/user/#{@userInfo["username"]}/following/"}="#{@userInfo["following"].length}"
+    %p
+        %strong="Followers"
+        %a{:href => "/user/#{@userInfo["username"]}/followers/"}="#{@userInfo["followers"].length}"

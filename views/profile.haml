@@ -1,0 +1,17 @@
+
+= display_profile_menu("account")
+
+= display_errors(@errors)
+
+%form{:method => "post"}
+    %p
+        Name:
+        %input{:type => "text", :name => "pretty_name", :value => @user["pretty_name"], :tabindex => 1}
+    %p
+        Email:
+        %input{:type => "text", :name => "email", :value => @user["email"], :tabindex => 2}
+    %p
+        Bio:
+        %textarea{:name => "bio", :tabindex => 3}=@user["bio"]
+    %p
+        %input{:type => "submit", :value => "Save"}
