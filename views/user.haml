@@ -11,6 +11,9 @@
         %a{:href=>"/user/#{@user["username"]}/follow/"}="Follow"
 
 #emission_list
-    - @emissions.each do |emission|
-        = display_emission(emission)
+    - if @emissions.length > 0
+        - @emissions.each do |emission|
+            = display_emission(emission)
+    - else
+        %p="#{@user["username"]} has not emitted yet"
 

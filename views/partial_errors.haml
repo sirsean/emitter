@@ -1,0 +1,6 @@
+
+- if @errors and @errors.length > 0
+    #errors
+        %ul
+            - @errors.each do |error|
+                %li= error

@@ -1,0 +1,10 @@
+
+.user_info
+    %h4
+        #{@title}
+    %p
+        #{@userInfo["username"]}
+    %p
+        %a{:href => "/user/#{@user["username"]}/following/"}="Following (#{@user["following"].length})"
+    %p
+        %a{:href => "/user/#{@user["username"]}/followers/"}="Followers (#{@user["followers"].length})"

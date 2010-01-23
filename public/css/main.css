@@ -3,46 +3,92 @@ body {
     width: 800px;
     margin: 0 auto 0 auto;
     font-family: Arial, sans-serif;
+    background-color: #727B84;
 }
 
 div#header {
-    background-color: #DDDDDD;
+    width: 790px;
+    float: left;
+    background-color: #D9E2E1;
     padding-left: 10px;
-    border-bottom: 3px solid #888888;
+    border-bottom: 3px solid #727B84;
+}
+
+div#header div#header_left {
+    float: left;
+    width: 300px;
+}
+
+div#header div#header_right {
+    float: right;
+    width: 300px;
+    text-align: right;
+    padding-right: 10px;
+    padding-top: 5px;
+}
+
+#outer_container {
+    width: 790px;
+    background-color: #A2ADBC;
+    float: left;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 div#main_container {
-    width: 500px;
+    width: 540px;
     float: left;
+    background-color: #F4F3EE;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 div#sidebar {
     width: 200px;
     float: right;
+    background-color: #DF9496;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 div#emit_form {
-    width: 470px;
-    padding: 15px;
-    background-color: #22AAAA;
+    width: 505px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 15px;
+    background-color: #F6F4DA;
+    border: 3px solid #DF9496;
     margin-bottom: 15px;
     margin-top: 10px;
 }
 
 div#emit_form textarea {
-    width: 470px;
+    width: 505px;
 }
 
-div#footer {
+#footer {
     clear: both;
     text-align: center;
     margin-top: 5px;
-    border-top: 2px solid blue;
+    border-top: 2px solid #727B84;
+    background-color: #D9E2E1;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+}
+
+#emission_list {
+    background-color: #DF9496;
+    padding: 5px;
+    margin-bottom: 5px;
 }
 
 div#emission_list div.emission {
-    border-left: 3px solid #444444;
-    background-color: #EEEEEE;
+    border-left: 3px solid #727B84;
+    background-color: #F6F4DA;
     margin-bottom: 10px;
     padding-left: 10px;
     padding-top: 5px;
@@ -55,9 +101,49 @@ div.single_emission {
     background-color: #449999;
 }
 
+#user_list {
+    background-color: #DF9496;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
 div#user_list div.user {
-    border-left: 4px solid #444444;
+    border-left: 4px solid #727B84;
+    background-color: #F6F4DA;
     margin-top: 5px;
     margin-bottom: 5px;
     padding: 5px;
+}
+
+div.user_info {
+    background-color: #F6F4DA;
+    padding: 10px;
+}
+
+#login_form {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #F6F4DA;
+    border: 4px solid #DF9496;
+}
+
+#login_form form p {
+    padding: 8px;
+}
+
+#signup_form {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #F6F4DA;
+    border: 4px solid #DF9496;
+}
+
+#signup_form form p {
+    padding: 8px;
+}
+
+#errors ul li {
+    color: #DD0000;
 }

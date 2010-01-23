@@ -270,8 +270,8 @@ get '/user/:username/?' do |username|
     @session = sessionDao.get(session["session_id"])
     @user = userDao.getByUsername(username)
     @emissions = publicService.getEmissions(username)
-    @is_you = (@session["username"] == username)
-    if not @is_you
+    @is_you = (@session and (@session["username"] == username))
+    if @session and not @is_you
         @is_following = userDao.isFollowing(@session["username"], {"username" => username, "timeline" => settings["timeline"]})
     end
 
@@ -363,6 +363,17 @@ helpers do
     def display_emission(emission)
         @emission = emission
         haml :partial_emission, :layout => false
+    end
+
+    def display_userinfo(title, userInfo)
+        @title = title
+        @userInfo = userInfo
+        haml :partial_userinfo, :layout => false
+    end
+
+    def display_errors(errors)
+        @errors = errors
+        haml :partial_errors, :layout => false
     end
 
 end

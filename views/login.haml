@@ -1,16 +1,14 @@
 
-- if @errors and @errors.length > 0
-    %ul
-    - @errors.each do |error|
-        %li= error
+= display_errors(@errors)
 
-%form{:method => "post"}
-    %p
-        Username:
-        %input{:type => "text", :name => "username", :value => @username, :tabindex => 1}
-    %p
-        Password:
-        %input{:type => "password", :name => "password", :tabindex => 2}
-    %p
-        %input{:type => "submit", :value => "Login"}
+#login_form
+    %form{:method => "post"}
+        %p
+            Username:
+            %input{:type => "text", :name => "username", :value => @username, :tabindex => 1}
+        %p
+            Password:
+            %input{:type => "password", :name => "password", :tabindex => 2}
+        %p
+            %input{:type => "submit", :value => "Login"}
 
