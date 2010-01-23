@@ -9,6 +9,9 @@
         %input{:type => "submit", :value => "Emit"}
 
 #emission_list
-    - @emissions.each do |emission|
-        = display_emission(emission)
+    - if @emissions and @emissions.length > 0
+        - @emissions.each do |emission|
+            = display_emission(emission)
+    - else
+        %p="Make communicating easier by <em>emitting</em> throughout the day"
 

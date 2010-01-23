@@ -89,7 +89,8 @@ div#emit_form textarea {
 div#emission_list div.emission {
     border-left: 3px solid #727B84;
     background-color: #F6F4DA;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
+    margin-top: 5px;
     padding-left: 10px;
     padding-top: 5px;
     padding-bottom: 5px;

@@ -189,7 +189,7 @@ post '/signup/?' do
         sessionDao.save(@session)
         session["session_id"] = @session[:_id]
 
-        redirect "/user/#{user['username']}/"
+        redirect "/home"
     else
         # there were errors, so we need to render the signup screen again
         haml :signup
@@ -255,7 +255,7 @@ get '/home/?' do
     puts @session
     if @session
         @user = userDao.getByUsername(@session["username"])
-        @emissions = tweetDao.getTweets(@user["timeline"])
+        @emissions = tweetDao.getTweets(@user["timeline"]).map{|emission| emission}
         haml :home
     else
         puts "not logged in"
