@@ -1,5 +1,6 @@
 
 .user_info
+    %img.user_image{:src => "/profile_pictures/#{@userInfo["username"]}.jpg"}
     %p
         %strong="#{@title}"
         #{@userInfo["username"]}

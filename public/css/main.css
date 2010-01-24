@@ -85,6 +85,7 @@ div#emit_form textarea {
     background-color: #DF9496;
     padding: 5px;
     margin-bottom: 5px;
+    float: left;
 }
 
 div#emission_list div.emission {
@@ -95,6 +96,22 @@ div#emission_list div.emission {
     padding-left: 10px;
     padding-top: 5px;
     padding-bottom: 5px;
+    float: left;
+}
+
+#emission_list div.emission div.emission_left {
+    float: left;
+    width: 60px;
+}
+
+#emission_list div.emission div.emission_right {
+    float: right;
+    width: 440px;
+    padding-left: 10px;
+}
+
+#emission_list div.emission div.emission_left img.user_image {
+    width: 60px;
 }
 
 div.single_emission {
@@ -107,6 +124,7 @@ div.single_emission {
     background-color: #DF9496;
     padding: 5px;
     margin-bottom: 5px;
+    float: left;
 }
 
 div#user_list div.user {
@@ -115,11 +133,31 @@ div#user_list div.user {
     margin-top: 5px;
     margin-bottom: 5px;
     padding: 5px;
+    float: left;
+}
+
+#user_list div.user div.user_left {
+    width: 60px;
+    float: left;
+}
+
+#user_list div.user div.user_right {
+    float: right;
+    width: 440px;
+    padding-left: 10px;
+}
+
+#user_list div.user div.user_left img.user_image {
+    width: 60px;
 }
 
 div.user_info {
     background-color: #F6F4DA;
     padding: 10px;
+}
+
+div.user_info img.user_image {
+    width: 180px;
 }
 
 #login_form {

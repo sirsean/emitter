@@ -363,8 +363,11 @@ post "/profile/picture/?" do
         if params[:file] and
                 (tmpfile = params[:file][:tempfile]) and
                 (filename = params[:file][:filename])
-            while blk = tmpfile.read(65536)
-            end
+            puts filename.inspect
+            extension = filename.split(".")[-1]
+            File.open("public/profile_pictures/#{@user["username"]}.#{extension}", "w") { |f|
+                f.write(tmpfile.read())
+            }
 
             redirect "/profile/picture/"
         else
@@ -510,6 +513,11 @@ helpers do
     def display_profile_menu(currentProfileScreen)
         @currentProfileScreen = currentProfileScreen
         haml :partial_profile_menu, :layout => false
+    end
+
+    def display_user_in_list(userInfo)
+        @userInfo = userInfo
+        haml :partial_user_in_list, :layout => false
     end
 
 end

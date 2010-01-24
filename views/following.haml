@@ -5,6 +5,5 @@
 
 #user_list
     - @following.each do |following|
-        .user
-            %a{:href => "http://#{following["timeline"]}/user/#{following["username"]}/"}=following["username"]
+        = display_user_in_list(following)
 

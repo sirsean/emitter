@@ -1,9 +1,12 @@
 
 .emission
-    %a{:href => "/user/#{@emission["username"]}/"}=@emission["username"]
-    %div
-        :markdown
-            #{@emission["metadata"]["content"]}
-    %div
-        %a{:href => "/emission/#{@emission["_id"]}/"}=@emission["posted_date"]
+    .emission_left
+        %img.user_image{:src => "/profile_pictures/#{@emission["username"]}.jpg"}
+    .emission_right
+        %a{:href => "/user/#{@emission["username"]}/"}=@emission["username"]
+        %div
+            :markdown
+                #{@emission["metadata"]["content"]}
+        %div
+            %a{:href => "/emission/#{@emission["_id"]}/"}=@emission["posted_date"]
 

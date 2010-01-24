@@ -41,6 +41,11 @@ class PublicService
 
         @userDao.save(saved)
 
+        default_picture = File.open("public/profile_pictures/default.jpg", "r")
+        File.open("public/profile_pictures/#{username}.jpg", "w") { |f|
+            f.write(default_picture.read())
+        }
+
         saved
     end
 
