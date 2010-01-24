@@ -25,6 +25,11 @@ class PublicService
             raise "Illegal argument: missing parameter"
         end
 
+        if (username =~ /^[a-zA-Z][a-zA-Z0-9\-_]+[a-zA-Z0-9]$/) == nil
+            puts "Illegal username: #{username}."
+            raise "Illegal argument: invalid username"
+        end
+
         # check if the user already exists
         existing = @userDao.getByUsername(username)
         if existing

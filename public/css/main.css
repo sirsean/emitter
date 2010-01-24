@@ -28,6 +28,15 @@ div#header div#header_right {
     padding-top: 5px;
 }
 
+#header_right a {
+    color: #000000;
+    font-weight: bold;
+}
+
+#header_right a:hover {
+    text-decoration: none;
+}
+
 #outer_container {
     width: 790px;
     background-color: #A2ADBC;
