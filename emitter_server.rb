@@ -440,6 +440,7 @@ end
 get '/emission/:emission_id/?' do |emission_id|
     @session = sessionDao.get(session["session_id"])
     @emission = tweetDao.get(Mongo::ObjectID.from_string(emission_id))
+    @user = userDao.getByUsername(@emission["username"])
 
     haml :emission
 end

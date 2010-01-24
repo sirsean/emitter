@@ -117,7 +117,8 @@ div#emission_list div.emission {
 div.single_emission {
     margin: 20px;
     padding: 15px;
-    background-color: #449999;
+    background-color: #F6F4DA;
+    border: 4px solid #DF9496;
 }
 
 #user_list {
