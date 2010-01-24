@@ -389,7 +389,7 @@ get '/home/?' do
     puts @session
     if @session
         @user = userDao.getByUsername(@session["username"])
-        @emissions = tweetDao.getTweets(@user["timeline"]).map{|emission| emission}
+        @emissions = tweetDao.getTweets(@user["timeline"]).map{|emission| emission}[0..24]
         haml :home
     else
         puts "not logged in"
@@ -403,7 +403,7 @@ end
 get '/user/:username/?' do |username|
     @session = sessionDao.get(session["session_id"])
     @user = userDao.getByUsername(username)
-    @emissions = publicService.getEmissions(username)
+    @emissions = publicService.getEmissions(username)[0..24]
     @is_you = (@session and (@session["username"] == username))
     if @session and not @is_you
         @is_following = userDao.isFollowing(@session["username"], {"username" => username, "timeline" => settings["timeline"]})
