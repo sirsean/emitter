@@ -493,6 +493,21 @@ end
 post '/emission/:emission_id/update/?' do |emission_id|
 end
 
+get '/search/?' do
+    @session = sessionDao.get(session["session_id"])
+    @term = params[:term]
+
+    puts "Search term: #{@term}"
+    if @term and not @term.empty?
+        puts "Searching..."
+        @emissions = tweetDao.search(@term)
+        puts "got results"
+        puts @emissions.inspect
+    end
+
+    haml :search
+end
+
 helpers do
 
     def display_emission(emission)

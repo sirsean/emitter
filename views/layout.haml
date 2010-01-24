@@ -10,6 +10,7 @@
                 - if @session
                     %a{:href => "/home/"}="#{@session["username"]}"
                     %a{:href => "/profile/"}="Profile"
+                    %a{:href => "/search/"}="Search"
                     %a{:href => "/logout/"}="Logout"
                 - else
                     %a{:href => "/login/"}="Login"

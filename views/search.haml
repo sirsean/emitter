@@ -1,0 +1,13 @@
+
+%h2="Search Emitter"
+
+%form{:method => "get"}
+    %input{:type => "text", :name => "term", :value => @term, :tabindex => 1}
+    %input{:type => "submit", :value => "Search"}
+
+#emission_list
+    - if @emissions and @emissions.count > 0
+        - @emissions.each do |emission|
+            = display_emission(emission)
+    - else
+        %p="No results"
