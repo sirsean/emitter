@@ -16,6 +16,7 @@ require 'processor/ForwardFollowProcessor'
 require 'processor/ForwardUnfollowProcessor'
 require 'processor/AuthenticatedProcessor'
 require 'processor/InsertEmissionIntoLocalTimelineProcessor'
+require 'processor/WordIndexingProcessor'
 require 'Settings'
 
 enable :sessions
@@ -37,6 +38,7 @@ remoteServerService = RemoteServerService.new
 # set up pre/post-processors for any actions that'll require them
 authenticatedProcessor = AuthenticatedProcessor.new(settings, userDao)
 postTweetProcessors = [
+    WordIndexingProcessor.new(settings, tweetDao),
     InsertEmissionIntoLocalTimelineProcessor.new(settings, userDao),
     ForwardTweetProcessor.new(settings, remoteServerService)
 ]

@@ -14,7 +14,6 @@ class TweetDao
     @param tweet - the tweet to save (can be new or already existing)
 =end
     def save(tweet)
-        tweet["words"] = (tweet["metadata"]["content"]).split().uniq().map{|e| e.downcase}
         @tweetCollection.save(tweet)
     end
 
