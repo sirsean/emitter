@@ -553,3 +553,17 @@ helpers do
     end
 
 end
+
+=begin
+    Re-opening the String class to add some methods that we're going to use in our templates
+=end
+class String
+
+=begin
+    Parse the String for usernames (with an @ at the start) and convert them to Markdown-syntax links to the user's page
+=end
+    def userlinks
+        self.gsub(/@[a-zA-Z0-9\-_]+[a-zA-Z0-9]/, "[\\0](/user/\\0/)")
+    end
+
+end
