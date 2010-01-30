@@ -2,7 +2,7 @@
 .single_emission
     %div
         :markdown
-            #{@emission["metadata"]["content"]}
+            #{@emission["metadata"]["content"].gsub(/@[a-zA-Z0-9\-_]+[a-zA-Z0-9]/, "[\\0](/user/\\0/)")}
     %div
         %a{:href => "/emission/#{@emission["_id"]}/"}=@emission["posted_date"]
 

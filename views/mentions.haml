@@ -1,0 +1,10 @@
+
+%h2="#{@user["username"]} Mentions"
+
+#emission_list
+    - if @mentions.count > 0
+        - @mentions.each do |emission|
+            = display_emission(emission)
+    - else
+        %p="#{@user["username"]} has not been mentioned yet"
+

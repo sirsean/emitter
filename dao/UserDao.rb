@@ -22,6 +22,7 @@ class UserDao
             user["tweets"] = [] unless user["tweets"]
             user["followers"] = [] unless user["followers"]
             user["following"] = [] unless user["following"]
+            user["mentions"] = [] unless user["mentions"]
             return user
         else
             return nil

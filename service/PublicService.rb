@@ -152,4 +152,23 @@ class PublicService
         }
     end
 
+=begin
+    Get the tweets that mention the given user
+
+    @param username
+    @return a list of tweets that mention the given user
+=end
+    def getMentions(username)
+        if not username
+            raise "Illegal argument: missing username"
+        end
+
+        user = @userDao.getByUsername(username)
+        if not user
+            raise "User not found"
+        end
+
+        @tweetDao.getTweets(user["mentions"]).map{ |tweet| tweet }
+    end
+
 end

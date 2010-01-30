@@ -17,6 +17,7 @@ require 'processor/ForwardUnfollowProcessor'
 require 'processor/AuthenticatedProcessor'
 require 'processor/InsertEmissionIntoLocalTimelineProcessor'
 require 'processor/WordIndexingProcessor'
+require 'processor/MentionParsingProcessor'
 require 'Settings'
 
 enable :sessions
@@ -40,7 +41,8 @@ authenticatedProcessor = AuthenticatedProcessor.new(settings, userDao)
 postTweetProcessors = [
     WordIndexingProcessor.new(settings, tweetDao),
     InsertEmissionIntoLocalTimelineProcessor.new(settings, userDao),
-    ForwardTweetProcessor.new(settings, remoteServerService)
+    MentionParsingProcessor.new(settings, userDao),
+    ForwardTweetProcessor.new(settings, remoteServerService),
 ]
 followProcessors = [
     ForwardFollowProcessor.new(settings, remoteServerService)
@@ -403,6 +405,7 @@ end
     A user's main page that displays a list of their emissions
 =end
 get '/user/:username/?' do |username|
+    username = username.sub("@", "")
     @session = sessionDao.get(session["session_id"])
     @user = userDao.getByUsername(username)
     @emissions = publicService.getEmissions(username)[0..24]
@@ -434,6 +437,17 @@ get '/user/:username/followers/?' do |username|
     @followers = publicService.getFollowers(username)
 
     haml :followers
+end
+
+=begin
+    Show all the tweets in which this user was mentioned
+=end
+get '/user/:username/mentions/?' do |username|
+    @session = sessionDao.get(session["session_id"])
+    @user = userDao.getByUsername(username)
+    @mentions = publicService.getMentions(username)
+
+    haml :mentions
 end
 
 =begin
