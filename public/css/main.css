@@ -124,6 +124,10 @@ div#emission_list div.emission {
     width: 60px;
 }
 
+#emission_list div.emission div.emission_right textarea {
+    width: 430px;
+}
+
 div.single_emission {
     margin: 20px;
     padding: 15px;

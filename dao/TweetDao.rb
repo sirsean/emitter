@@ -2,30 +2,7 @@
 =begin
     A DAO to access tweets.
 =end
-class TweetDao
-
-    def initialize(tweetCollection)
-        @tweetCollection = tweetCollection
-    end
-
-=begin
-    Persist a single tweet.
-
-    @param tweet - the tweet to save (can be new or already existing)
-=end
-    def save(tweet)
-        @tweetCollection.save(tweet)
-    end
-
-=begin
-    Get a single tweet by its id.
-
-    @param id
-    @return the tweet
-=end
-    def get(id)
-        @tweetCollection.find_one('_id' => id)
-    end
+class TweetDao < BaseDao
 
 =begin
     Get a list of tweets based on a list of ids, with an optional date range.
@@ -52,11 +29,11 @@ class TweetDao
             query['posted_date'] = {'$gt' => after_date}
         end
 
-        @tweetCollection.find(query).sort(['posted_date', 'descending'])
+        @collection.find(query).sort(['posted_date', 'descending'])
     end
 
     def search(term)
-        @tweetCollection.find({"words" => /#{term.downcase}/})
+        @collection.find({"words" => /#{term.downcase}/})
     end
 
 end

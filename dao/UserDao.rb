@@ -2,11 +2,7 @@
 =begin
     A DAO to access users.
 =end
-class UserDao
-
-    def initialize(userCollection)
-        @userCollection = userCollection
-    end
+class UserDao < BaseDao
 
 =begin
     Get a user by its username.
@@ -15,7 +11,7 @@ class UserDao
     @return the user that matches that username, or nil if there is no user with that username
 =end
     def getByUsername(username)
-        users = @userCollection.find("username" => username)
+        users = @collection.find("username" => username)
         if users.count() > 0
             user = users.first
             user["timeline"] = [] unless user["timeline"]
@@ -37,7 +33,7 @@ class UserDao
     @return true if the user is found and the password matches, false otherwise
 =end
     def authenticateUser(username, password)
-        users = @userCollection.find("username" => username, "password" => password)
+        users = @collection.find("username" => username, "password" => password)
         return (users.count() > 0)
     end
 
@@ -49,17 +45,8 @@ class UserDao
     @return true if the user is following the given user, false if not
 =end
     def isFollowing(username, toFollow)
-        users = @userCollection.find("username" => username, "following" => {"username"=>toFollow["username"], "timeline"=>toFollow["timeline"]})
+        users = @collection.find("username" => username, "following" => {"username"=>toFollow["username"], "timeline"=>toFollow["timeline"]})
         return (users.count() > 0)
-    end
-
-=begin
-    Persist a user.
-
-    @param user - the user object to save (can be new or existing)
-=end
-    def save(user)
-        @userCollection.save(user)
     end
 
 end

@@ -7,9 +7,11 @@ require 'Time'
 require 'service/PublicService'
 require 'service/AuthenticatedService'
 require 'service/ServerService'
+require 'dao/BaseDao'
 require 'dao/UserDao'
 require 'dao/TweetDao'
 require 'dao/SessionDao'
+require 'dao/ConversationDao'
 require 'remote/RemoteServerService'
 require 'processor/ForwardTweetProcessor'
 require 'processor/ForwardFollowProcessor'
@@ -18,6 +20,7 @@ require 'processor/AuthenticatedProcessor'
 require 'processor/InsertEmissionIntoLocalTimelineProcessor'
 require 'processor/WordIndexingProcessor'
 require 'processor/MentionParsingProcessor'
+require 'processor/ConversationProcessor'
 require 'Settings'
 
 enable :sessions
@@ -32,6 +35,7 @@ db = Mongo::Connection.new.db(settings["db_name"])
 userDao = UserDao.new(db["users"])
 tweetDao = TweetDao.new(db["tweets"])
 sessionDao = SessionDao.new(db["sessions"])
+conversationDao = ConversationDao.new(db["conversations"])
 
 # set up helper services
 remoteServerService = RemoteServerService.new
@@ -42,6 +46,7 @@ postTweetProcessors = [
     WordIndexingProcessor.new(settings, tweetDao),
     InsertEmissionIntoLocalTimelineProcessor.new(settings, userDao),
     MentionParsingProcessor.new(settings, userDao),
+    ConversationProcessor.new(settings, tweetDao, conversationDao),
     ForwardTweetProcessor.new(settings, remoteServerService),
 ]
 followProcessors = [

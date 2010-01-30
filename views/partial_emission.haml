@@ -9,4 +9,20 @@
                 #{@emission["metadata"]["content"].userlinks}
         %div
             %a{:href => "/emission/#{@emission["_id"]}/"}=@emission["posted_date"]
+            %a{:id => "reply_#{@emission["_id"]}", :href => "#"}="Reply"
+            :javascript
+                $("#reply_#{@emission["_id"]}").live("click", function() {
+                    $("#reply_form_#{@emission["_id"]}").show();
+                    $("#reply_textarea_#{@emission["_id"]}").select();
+                });
+                $("#reply_cancel_#{@emission["_id"]}").live("click", function() {
+                    $("#reply_form_#{@emission["_id"]}").hide();
+                });
+        %div{:id => "reply_form_#{@emission["_id"]}", :style => "display: none;"}
+            %form{:action => "/emit/", :method => "post"}
+                %input{:type => "hidden", :name => "in_reply_to", :value => "#{@emission["_id"]}"}
+                %textarea{:id => "reply_textarea_#{@emission["_id"]}", :name => "content", :rows => 4}="@#{@emission["username"]}"
+                %br
+                %input{:type => "submit", :value => "Reply"}
+                %a{:id => "reply_cancel_#{@emission["_id"]}", :href => "#"}="Cancel"
 
