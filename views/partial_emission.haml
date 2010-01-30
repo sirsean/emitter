@@ -9,7 +9,8 @@
                 #{@emission["metadata"]["content"].userlinks}
         %div
             %a{:href => "/emission/#{@emission["_id"]}/"}=@emission["posted_date"]
-            %a{:id => "reply_#{@emission["_id"]}", :href => "#"}="Reply"
+            - if @session["username"] != @emission["username"]
+                %a{:id => "reply_#{@emission["_id"]}", :href => "#"}="Reply"
             :javascript
                 $("#reply_#{@emission["_id"]}").live("click", function() {
                     $("#reply_form_#{@emission["_id"]}").show();
