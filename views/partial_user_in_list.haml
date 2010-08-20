@@ -1,6 +1,6 @@
 
 .user
     .user_left
-        %img.user_image{:src => "/profile_pictures/#{@userInfo["username"]}.jpg"}
+        %img.user_image{:src => "/profile_pictures/#{@userInfo.username}.jpg"}
     .user_right
-        %a{:href => "http://#{@userInfo["timeline"]}/user/#{@userInfo["username"]}/"}=@userInfo["username"]
+        %a{:href => "http://#{@site_hostname}/user/#{@userInfo.username}/"}=@userInfo.username

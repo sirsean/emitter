@@ -1,22 +1,22 @@
 
 .user_info
-    %img.user_image{:src => "/profile_pictures/#{@userInfo["username"]}.jpg"}
+    %img.user_image{:src => "/profile_pictures/#{@userInfo.username}.jpg"}
     %p
         %strong="#{@title}"
-        #{@userInfo["username"]}
-    - if @userInfo["bio"] and not @userInfo["bio"].empty?
+        #{@userInfo.username}
+    - if @userInfo.bio and not @userInfo.bio.empty?
         %p
             %strong="Bio"
-            #{@userInfo["bio"]}
+            #{@userInfo.bio}
     %p
-        %strong="Emission#{"s" unless @userInfo["tweets"].length == 1}"
-        %a{:href => "/user/#{@userInfo["username"]}/"}="#{@userInfo["tweets"].length}"
+        -#%strong="Emission#{"s" unless @userInfo["tweets"].length == 1}"
+        -#%a{:href => "/user/#{@userInfo["username"]}/"}="#{@userInfo["tweets"].length}"
     %p
         %strong="Following"
-        %a{:href => "/user/#{@userInfo["username"]}/following/"}="#{@userInfo["following"].length}"
+        %a{:href => "/user/#{@userInfo.username}/following/"}="#{@userInfo.num_following}"
     %p
         %strong="Followers"
-        %a{:href => "/user/#{@userInfo["username"]}/followers/"}="#{@userInfo["followers"].length}"
+        %a{:href => "/user/#{@userInfo.username}/followers/"}="#{@userInfo.num_followers}"
     %p
-        %strong="Mentions"
-        %a{:href => "/user/#{@userInfo["username"]}/mentions/"}="#{@userInfo["mentions"].count}"
+        -#%strong="Mentions"
+        -#%a{:href => "/user/#{@userInfo["username"]}/mentions/"}="#{@userInfo["mentions"].count}"

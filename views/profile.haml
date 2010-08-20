@@ -6,12 +6,12 @@
 %form{:method => "post"}
     %p
         Name:
-        %input{:type => "text", :name => "pretty_name", :value => @user["pretty_name"], :tabindex => 1}
+        %input{:type => "text", :name => "pretty_name", :value => @logged_in_user.pretty_name, :tabindex => 1}
     %p
         Email:
-        %input{:type => "text", :name => "email", :value => @user["email"], :tabindex => 2}
+        %input{:type => "text", :name => "email", :value => @logged_in_user.email, :tabindex => 2}
     %p
         Bio:
-        %textarea{:name => "bio", :tabindex => 3}=@user["bio"]
+        %textarea{:name => "bio", :tabindex => 3}=@logged_in_user.bio
     %p
         %input{:type => "submit", :value => "Save"}

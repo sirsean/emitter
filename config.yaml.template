@@ -1,0 +1,5 @@
+site_name: "Emitter"
+site_hostname: "localhost:4567"
+
+db_hostname: "localhost"
+db_name: "emitter2"

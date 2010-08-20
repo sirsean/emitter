@@ -2,7 +2,7 @@
 .single_emission
     %div
         :markdown
-            #{@emission["metadata"]["content"].userlinks}
+            #{@emission.content.userlinks}
     %div
-        %a{:href => "/emission/#{@emission["_id"]}/"}=@emission["posted_date"]
+        %a{:href => "/emission/#{@emission.id}/"}=@emission.created_at
 

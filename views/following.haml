@@ -1,9 +1,9 @@
 
 %h2="Following"
 
-%p="#{@user["username"]} is following #{@following.length} user#{"s" unless @following.length == 1}"
+%p="#{@user.username} is following #{@user.num_following} user#{"s" unless @user.num_following == 1}"
 
 #user_list
-    - @following.each do |following|
-        = display_user_in_list(following)
+    - @user.following_ids.each do |following_id|
+        = display_user_in_list(following_id)
 

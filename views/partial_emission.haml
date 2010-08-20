@@ -1,29 +1,29 @@
 
 .emission
     .emission_left
-        %img.user_image{:src => "/profile_pictures/#{@emission["username"]}.jpg"}
+        %img.user_image{:src => "/profile_pictures/#{@emission.author_username}.jpg"}
     .emission_right
-        %a{:href => "/user/#{@emission["username"]}/"}=@emission["username"]
+        %a{:href => "/user/#{@emission.author_username}/"}=@emission.author_username
         %div
             :markdown
-                #{@emission["metadata"]["content"].userlinks}
+                #{@emission.content.userlinks}
         %div
-            %a{:href => "/emission/#{@emission["_id"]}/"}=@emission["posted_date"]
-            - if @session["username"] != @emission["username"]
-                %a{:id => "reply_#{@emission["_id"]}", :href => "#"}="Reply"
+            %a{:href => "/emission/#{@emission.id}/"}=@emission.created_at
+            - if @logged_in_user.id != @emission.author_id
+                %a{:id => "reply_#{@emission.id}", :href => "#"}="Reply"
             :javascript
-                $("#reply_#{@emission["_id"]}").live("click", function() {
-                    $("#reply_form_#{@emission["_id"]}").show();
-                    $("#reply_textarea_#{@emission["_id"]}").select();
+                $("#reply_#{@emission.id}").live("click", function() {
+                    $("#reply_form_#{@emission.id}").show();
+                    $("#reply_textarea_#{@emission.id}").select();
                 });
-                $("#reply_cancel_#{@emission["_id"]}").live("click", function() {
-                    $("#reply_form_#{@emission["_id"]}").hide();
+                $("#reply_cancel_#{@emission.id}").live("click", function() {
+                    $("#reply_form_#{@emission.id}").hide();
                 });
-        %div{:id => "reply_form_#{@emission["_id"]}", :style => "display: none;"}
+        %div{:id => "reply_form_#{@emission.id}", :style => "display: none;"}
             %form{:action => "/emit/", :method => "post"}
-                %input{:type => "hidden", :name => "in_reply_to", :value => "#{@emission["_id"]}"}
-                %textarea{:id => "reply_textarea_#{@emission["_id"]}", :name => "content", :rows => 4}="@#{@emission["username"]}"
+                %input{:type => "hidden", :name => "in_reply_to", :value => "#{@emission.id}"}
+                %textarea{:id => "reply_textarea_#{@emission.id}", :name => "content", :rows => 4}="@#{@emission.author_username}"
                 %br
                 %input{:type => "submit", :value => "Reply"}
-                %a{:id => "reply_cancel_#{@emission["_id"]}", :href => "#"}="Cancel"
+                %a{:id => "reply_cancel_#{@emission.id}", :href => "#"}="Cancel"
 
