@@ -7,6 +7,7 @@ class Post
     key :user_ids, :index => true       # an array of all the user id's whose timeline this belongs in
     key :mentioned_user_ids, :index => true     # an array of all the user id's who were mentioned in this post
     key :in_reply_to_post_id
+    key :conversation_id
     key :created_at, Time
     key :content, String
 
@@ -20,6 +21,10 @@ class Post
 
     def self.get_by_author_id(user_id)
         Post.where(:author_id => user_id).sort(:created_at.desc).all
+    end
+
+    def self.get_by_post_ids(post_ids)
+        Post.where(:id => post_ids).sort(:created_at.desc).all
     end
 
 end

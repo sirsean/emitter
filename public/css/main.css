@@ -212,3 +212,8 @@ div.user_info img.user_image {
 #profile_menu a.selected {
     font-weight: bold;
 }
+
+div.clear {
+    clear: both;
+}
+

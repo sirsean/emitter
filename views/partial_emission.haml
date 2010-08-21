@@ -9,12 +9,19 @@
                 #{@emission.content.userlinks}
         %div
             %a{:href => "/emission/#{@emission.id}/"}=@emission.created_at
+            - if @emission.conversation_id
+                %a{:href => "/conversation/#{@emission.conversation_id}/"}="Conversation"
             - if @logged_in_user.id != @emission.author_id
                 %a{:id => "reply_#{@emission.id}", :href => "#"}="Reply"
             :javascript
                 $("#reply_#{@emission.id}").live("click", function() {
                     $("#reply_form_#{@emission.id}").show();
-                    $("#reply_textarea_#{@emission.id}").select();
+                    $("#reply_textarea_#{@emission.id}").focus();
+                    $("#reply_textarea_#{@emission.id}").get(0).value += " ";
+                    var val = $("#reply_textarea_#{@emission.id}").get(0).value;
+                    console.log(val+".");
+                    console.log(val.length);
+                    $("#reply_textarea_#{@emission.id}").get(0).setSelectionRange(val.length, val.length);
                 });
                 $("#reply_cancel_#{@emission.id}").live("click", function() {
                     $("#reply_form_#{@emission.id}").hide();

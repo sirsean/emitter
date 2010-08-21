@@ -19,6 +19,7 @@ end
 # load the models AFTER connecting to the database, because of the way MongoMapper handles indexes
 require 'model/User'
 require 'model/Post'
+require 'model/Conversation'
 
 before do
     puts "before request"
@@ -327,7 +328,23 @@ post "/emit/?" do
         mentioned_users = User.get_by_usernames(mentioned_usernames)
         mentioned_user_ids = mentioned_users.map{|u| u.id}
         in_reply_to = Post.find(params["in_reply_to"])
-        in_reply_to_post_id = in_reply_to.id unless in_reply_to.nil?
+        conversation = nil
+        conversation_id = nil
+        if not in_reply_to.nil?
+            in_reply_to_post_id = in_reply_to.id
+            if in_reply_to.conversation_id
+                conversation = Conversation.find(in_reply_to.conversation_id)
+            else
+                conversation = Conversation.create({
+                    :post_ids => [in_reply_to.id],
+                    :user_ids => [in_reply_to.author_id],
+                    :created_at => Time.now
+                })
+                in_reply_to.conversation_id = conversation.id
+                in_reply_to.save
+            end
+            conversation_id = conversation.id
+        end
         post = Post.create({
             :author_id => @logged_in_user.id,
             :author_username => @logged_in_user.username,
@@ -335,10 +352,21 @@ post "/emit/?" do
             :user_ids => [@logged_in_user.id] + (@logged_in_user.follower_ids or []) + mentioned_user_ids,
             :mentioned_user_ids => mentioned_user_ids,
             :in_reply_to_post_id => in_reply_to_post_id,
+            :conversation_id => conversation_id,
             :created_at => Time.now,
             :content => params["content"]
         })
         post.save
+
+        if conversation
+            conversation.post_ids << post.id
+            conversation.user_ids << post.author_id
+
+            conversation.post_ids.uniq!
+            conversation.user_ids.uniq!
+
+            conversation.save
+        end
 
         mentioned_users.each{ |u|
             if not u.mention_post_ids
@@ -358,6 +386,14 @@ end
 
 post "/emission/:post_id/update/?" do |post_id|
     redirect "/emission/#{post_id}/"
+end
+
+get "/conversation/:conversation_id/?" do |conversation_id|
+    @conversation = Conversation.find(conversation_id)
+    @users = User.get_by_user_ids(@conversation.user_ids)
+    @emissions = Post.get_by_post_ids(@conversation.post_ids)
+
+    haml :conversation
 end
 
 get "/search/?" do
