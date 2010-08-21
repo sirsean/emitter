@@ -225,6 +225,7 @@ end
 
 get "/user/:username/following/?" do |username|
     @user = User.get_by_username(username)
+    @following = User.get_by_user_ids(@user.following_ids)
     haml :following
 end
 

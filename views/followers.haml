@@ -3,7 +3,8 @@
 
 %p="#{@user.username} has #{@user.num_followers} follower#{"s" unless @user.num_followers == 1}"
 
-#user_list
-    - @followers.each do |follower|
-        = display_user_in_list(follower)
+- if not @followers.empty?
+    #user_list
+        - @followers.each do |follower|
+            = display_user_in_list(follower)
 

@@ -3,7 +3,8 @@
 
 %p="#{@user.username} is following #{@user.num_following} user#{"s" unless @user.num_following == 1}"
 
-#user_list
-    - @user.following_ids.each do |following_id|
-        = display_user_in_list(following_id)
+- if not @following.empty?
+    #user_list
+        - @following.each do |following_user|
+            = display_user_in_list(following_user)
 
