@@ -6,6 +6,7 @@ class Post
     key :author_pretty_name, String
     key :user_ids, :index => true       # an array of all the user id's whose timeline this belongs in
     key :mentioned_user_ids, :index => true     # an array of all the user id's who were mentioned in this post
+    key :in_reply_to_post_id
     key :created_at, Time
     key :content, String
 

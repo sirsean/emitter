@@ -195,12 +195,29 @@ post "/profile/password/?" do
 end
 
 get "/profile/picture/?" do
-    haml :profile_picture
+    if @logged_in_user
+        haml :profile_picture
+    else
+        redirect "/login/"
+    end
 end
 
 post "/profile/picture/?" do
-    @errors = ["Can't update your picture"]
-    haml :profile_picture
+    if @logged_in_user
+        puts "uploading profile picture"
+        puts params.inspect
+        if params[:file] and (tmpfile = params[:file][:tempfile]) and (filename = params[:file][:filename])
+            puts filename.inspect
+            extension = filename.split(".")[-1]
+            File.open("public/profile_pictures/#{@logged_in_user.username}.#{extension}", "w") { |f| f.write(tmpfile.read()) }
+            redirect "/profile/picture/"
+        else
+            @errors = ["Missing file"]
+            haml :profile_picture
+        end
+    else
+        redirect "/login/"
+    end
 end
 
 get "/home/?" do
@@ -307,18 +324,20 @@ end
 post "/emit/?" do
     if @logged_in_user
         puts "emitting..."
-        puts params["content"]
+        puts params
         mentioned_usernames = params["content"].extract_usernames
         puts mentioned_usernames
         mentioned_users = User.get_by_usernames(mentioned_usernames)
         mentioned_user_ids = mentioned_users.map{|u| u.id}
-        puts mentioned_user_ids
+        in_reply_to = Post.find(params["in_reply_to"])
+        in_reply_to_post_id = in_reply_to.id unless in_reply_to.nil?
         post = Post.create({
             :author_id => @logged_in_user.id,
             :author_username => @logged_in_user.username,
             :author_pretty_name => @logged_in_user.pretty_name,
             :user_ids => [@logged_in_user.id] + (@logged_in_user.follower_ids or []) + mentioned_user_ids,
             :mentioned_user_ids => mentioned_user_ids,
+            :in_reply_to_post_id => in_reply_to_post_id,
             :created_at => Time.now,
             :content => params["content"]
         })
