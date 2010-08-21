@@ -26,6 +26,8 @@
             #sidebar
                 - if @user and (@logged_in_user != @user)
                     = display_userinfo("User", @user)
+                    - if @logged_in_user
+                        %hr
                 - if @logged_in_user
                     = display_userinfo("You", @logged_in_user)
 

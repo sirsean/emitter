@@ -204,10 +204,7 @@ end
 
 post "/profile/picture/?" do
     if @logged_in_user
-        puts "uploading profile picture"
-        puts params.inspect
         if params[:file] and (tmpfile = params[:file][:tempfile]) and (filename = params[:file][:filename])
-            puts filename.inspect
             extension = filename.split(".")[-1]
             File.open("public/profile_pictures/#{@logged_in_user.username}.#{extension}", "w") { |f| f.write(tmpfile.read()) }
             redirect "/profile/picture/"
