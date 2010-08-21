@@ -18,5 +18,5 @@
         %strong="Followers"
         %a{:href => "/user/#{@userInfo.username}/followers/"}="#{@userInfo.num_followers}"
     %p
-        -#%strong="Mentions"
-        -#%a{:href => "/user/#{@userInfo["username"]}/mentions/"}="#{@userInfo["mentions"].count}"
+        %strong="Mentions"
+        %a{:href => "/user/#{@userInfo.username}/mentions/"}="#{@userInfo.num_mentions}"

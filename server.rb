@@ -214,8 +214,10 @@ get "/home/?" do
 end
 
 get "/user/:username/?" do |username|
+    puts "viewing #{username}"
     @user = User.get_by_username(username)
-    @emissions = []
+    puts "got user id #{@user.id}"
+    @emissions = Post.get_by_author_id(@user.id)
     if @logged_in_user
         @is_you = (@user.id == @logged_in_user.id)
         @is_following = @logged_in_user.is_following?(@user.id)
@@ -236,6 +238,8 @@ get "/user/:username/followers/?" do |username|
 end
 
 get "/user/:username/mentions/?" do |username|
+    @user = User.get_by_username(username)
+    @emissions = Post.get_by_mentioned_user_id(@user.id)
     haml :mentions
 end
 
@@ -302,15 +306,33 @@ end
 
 post "/emit/?" do
     if @logged_in_user
+        puts "emitting..."
+        puts params["content"]
+        mentioned_usernames = params["content"].extract_usernames
+        puts mentioned_usernames
+        mentioned_users = User.get_by_usernames(mentioned_usernames)
+        mentioned_user_ids = mentioned_users.map{|u| u.id}
+        puts mentioned_user_ids
         post = Post.create({
             :author_id => @logged_in_user.id,
             :author_username => @logged_in_user.username,
             :author_pretty_name => @logged_in_user.pretty_name,
-            :user_ids => [@logged_in_user.id] + (@logged_in_user.follower_ids or []),
+            :user_ids => [@logged_in_user.id] + (@logged_in_user.follower_ids or []) + mentioned_user_ids,
+            :mentioned_user_ids => mentioned_user_ids,
             :created_at => Time.now,
             :content => params["content"]
         })
         post.save
+
+        mentioned_users.each{ |u|
+            if not u.mention_post_ids
+                u.mention_post_ids = []
+                u.num_mentions = 0
+            end
+            u.mention_post_ids << post.id
+            u.num_mentions += 1
+            u.save
+        }
 
         redirect "/home/"
     else
@@ -363,7 +385,11 @@ class String
     Parse the String for usernames (with an @ at the start) and convert them to Markdown-syntax links to the user's page
 =end
     def userlinks
-        self.gsub(/@[a-zA-Z0-9\-_]+[a-zA-Z0-9]/, "[\\0](/user/\\0/)")
+        self.gsub(/@([a-zA-Z0-9\-_]+[a-zA-Z0-9])/, "[\\0](/user/\\1/)")
+    end
+
+    def extract_usernames
+        self.scan(/@[a-zA-Z0-9\-_]+[a-zA-Z0-9]/).map{|username| username.gsub(/@/, "") }
     end
 
 end

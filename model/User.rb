@@ -8,8 +8,10 @@ class User
     key :bio, String
     key :follower_ids, :index => true
     key :following_ids, :index => true
+    key :mention_post_ids, :index => true
     key :num_followers, Integer
     key :num_following, Integer
+    key :num_mentions, Integer
 
     def self.username_exists?(username)
         User.all(:username => username).count > 0
@@ -25,6 +27,10 @@ class User
 
     def self.get_by_user_ids(user_ids)
         User.where(:id => user_ids).all
+    end
+
+    def self.get_by_usernames(usernames)
+        User.where(:username => usernames).all
     end
 
     def is_following?(user_id)
