@@ -23,6 +23,10 @@ class User
         User.all(:username => username, :password => password).first
     end
 
+    def self.get_by_user_ids(user_ids)
+        User.where(:id => user_ids).all
+    end
+
     def is_following?(user_id)
         if not self.following_ids
             return false

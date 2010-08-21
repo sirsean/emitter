@@ -230,6 +230,7 @@ end
 
 get "/user/:username/followers/?" do |username|
     @user = User.get_by_username(username)
+    @followers = User.get_by_user_ids(@user.follower_ids)
     haml :followers
 end
 
@@ -346,8 +347,8 @@ helpers do
         haml :partial_profile_menu, :layout => false
     end
 
-    def display_user_in_list(user_id)
-        @userInfo = User.find(user_id)
+    def display_user_in_list(user)
+        @userInfo = user
         haml :partial_user_in_list, :layout => false
     end
 end

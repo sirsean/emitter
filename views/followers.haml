@@ -4,6 +4,6 @@
 %p="#{@user.username} has #{@user.num_followers} follower#{"s" unless @user.num_followers == 1}"
 
 #user_list
-    - @user.follower_ids.each do |follower_id|
-        = display_user_in_list(follower_id)
+    - @followers.each do |follower|
+        = display_user_in_list(follower)
 
