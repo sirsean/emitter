@@ -1,5 +1,0 @@
-
-class ConversationDao < BaseDao
-
-end
-
