@@ -1,4 +1,4 @@
-Emitter is an open protocol and server platform for extensible Twitter-like communication that supports server-to-server cooperation.
+Emitter is a melding of Twitter and Email, best used within organizations to support an asynchronous follower model of communication between co-workers. It allows an innovative form of shared, open conversation.
 
 To set it up, you'll first need Mongo installed and running.
 
@@ -10,6 +10,7 @@ To set it up, you'll first need Mongo installed and running.
 Your Mongo server is running! Now you'll need to install some gems:
 
     gem install mongo
+    gem install mongo_mapper
     gem install sinatra
     gem install json
     gem install haml
@@ -17,6 +18,6 @@ Your Mongo server is running! Now you'll need to install some gems:
 
 Then you can run the server:
 
-    ruby emitter_server.rb
+    ruby server.rb
 
-Go to http://localhost:4567/test to start hitting your new Emitter timeline server with requests!
+Go to http://localhost:4567/ and start using Emitter.
