@@ -345,72 +345,11 @@ end
 post "/emit/?" do
     if @logged_in_user
         puts "emitting..."
-        mentioned_usernames = params["content"].extract_usernames
-        mentioned_users = User.get_by_usernames(mentioned_usernames)
-        mentioned_user_ids = mentioned_users.map{|u| u.id}
-        in_reply_to = Post.find(params["in_reply_to"])
-        conversation = nil
-        conversation_id = nil
-        if not in_reply_to.nil?
-            in_reply_to_post_id = in_reply_to.id
-            if in_reply_to.conversation_id
-                conversation = Conversation.find(in_reply_to.conversation_id)
-            else
-                conversation = Conversation.create({
-                    :post_ids => [in_reply_to.id],
-                    :user_ids => [in_reply_to.author_id],
-                    :created_at => Time.now
-                })
-                in_reply_to.conversation_id = conversation.id
-                in_reply_to.save
-            end
-            conversation_id = conversation.id
-        end
-
-        timeline_user_ids = [@logged_in_user.id]
-        if @logged_in_user.follower_ids
-            timeline_user_ids += @logged_in_user.follower_ids
-        end
-        if mentioned_user_ids
-            timeline_user_ids += mentioned_user_ids
-        end
-        if conversation and conversation.user_ids
-            timeline_user_ids += conversation.user_ids
-        end
-        timeline_user_ids.uniq!
-
-        post = Post.create({
-            :author_id => @logged_in_user.id,
-            :author_username => @logged_in_user.username,
-            :author_pretty_name => @logged_in_user.pretty_name,
-            :user_ids => timeline_user_ids,
-            :mentioned_user_ids => mentioned_user_ids,
-            :in_reply_to_post_id => in_reply_to_post_id,
-            :conversation_id => conversation_id,
-            :created_at => Time.now,
-            :content => params["content"]
+        post = Post.emit({
+            :author => @logged_in_user,
+            :content => params["content"],
+            :in_reply_to => params["in_reply_to"]
         })
-        post.save
-
-        if conversation
-            conversation.post_ids << post.id
-            conversation.user_ids << post.author_id
-
-            conversation.post_ids.uniq!
-            conversation.user_ids.uniq!
-
-            conversation.save
-        end
-
-        mentioned_users.each{ |u|
-            if not u.mention_post_ids
-                u.mention_post_ids = []
-                u.num_mentions = 0
-            end
-            u.mention_post_ids << post.id
-            u.num_mentions += 1
-            u.save
-        }
 
         #redirect session.delete("redirect_url") or "/home/"
         flash "Emission posted"
