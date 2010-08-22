@@ -104,6 +104,7 @@ get "/login/?" do
 end
 
 post "/login/?" do
+    puts "trying to log in"
     if @logged_in_user
         redirect_back "/home/"
     else
@@ -111,9 +112,11 @@ post "/login/?" do
         password = params["password"]
         user = User.get_by_username_and_password(@username, password)
         if user
+            puts "successful login"
             session["user_id"] = user.id
             redirect_back "/home/"
         else
+            puts "failed login"
             @errors = ["Invalid login"]
             haml :login
         end
@@ -363,11 +366,24 @@ post "/emit/?" do
             end
             conversation_id = conversation.id
         end
+
+        timeline_user_ids = [@logged_in_user.id]
+        if @logged_in_user.follower_ids
+            timeline_user_ids += @logged_in_user.follower_ids
+        end
+        if mentioned_user_ids
+            timeline_user_ids += mentioned_user_ids
+        end
+        if conversation and conversation.user_ids
+            timeline_user_ids += conversation.user_ids
+        end
+        timeline_user_ids.uniq!
+
         post = Post.create({
             :author_id => @logged_in_user.id,
             :author_username => @logged_in_user.username,
             :author_pretty_name => @logged_in_user.pretty_name,
-            :user_ids => [@logged_in_user.id] + (@logged_in_user.follower_ids or []) + mentioned_user_ids,
+            :user_ids => timeline_user_ids,
             :mentioned_user_ids => mentioned_user_ids,
             :in_reply_to_post_id => in_reply_to_post_id,
             :conversation_id => conversation_id,
@@ -484,7 +500,11 @@ def set_redirect
 end
 
 def redirect_back(default=nil)
-    redirect session.delete("redirect_url") or default
+    redirect_url = session.delete("redirect_url")
+    if not redirect_url
+        redirect_url = default
+    end
+    redirect redirect_url
 end
 
 
