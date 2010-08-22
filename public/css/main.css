@@ -55,6 +55,16 @@ div#main_container {
     margin-bottom: 10px;
 }
 
+#flash {
+    background-color: #CCFF33;
+    text-align: center;
+    padding: 10px;
+    margin-top: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    font-weight: bold;
+}
+
 div#sidebar {
     width: 200px;
     float: right;
@@ -167,6 +177,42 @@ div#user_list div.user {
     width: 60px;
 }
 
+#sidebar_user_list {
+    background-color: #DF9496;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    float: left;
+}
+
+#sidebar_user_list h4 {
+    padding: 0px;
+    margin: 0px;
+}
+
+#sidebar_user_list div.user {
+    border-left: 4px solid #727B84;
+    background-color: #F6F4DA;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 5px;
+    float: left;
+}
+
+#sidebar_user_list div.user_left {
+    float: left;
+    width: 60px;
+}
+
+#sidebar_user_list div.user_right {
+    float: right;
+    padding-left: 10px;
+    width: 115px;
+}
+
+#sidebar_user_list div.user div.user_left img.user_image {
+    width: 60px;
+}
+
 div.user_info {
     background-color: #F6F4DA;
     padding: 10px;
@@ -207,6 +253,7 @@ div.user_info img.user_image {
 #profile_menu {
     background-color: #DF9496;
     padding: 4px;
+    margin-top: 5px;
 }
 
 #profile_menu a.selected {

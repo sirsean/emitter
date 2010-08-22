@@ -27,4 +27,8 @@ class Post
         Post.where(:id => post_ids).sort(:created_at.desc).all
     end
 
+    def self.search_content(term)
+        Post.where(:content => /#{term.downcase}/i).sort(:created_at.desc).all
+    end
+
 end

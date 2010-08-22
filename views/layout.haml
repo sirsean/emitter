@@ -21,6 +21,9 @@
         #outer_container
 
             #main_container
+                - if @flash
+                    #flash="#{@flash}"
+                    
                 = yield
 
             #sidebar
@@ -30,6 +33,13 @@
                         %hr
                 - if @logged_in_user
                     = display_userinfo("You", @logged_in_user)
+
+                - if @conversation_users and not @conversation_users.empty?
+                    %hr
+                    #sidebar_user_list
+                        %h4="Conversation Participants"
+                        - @conversation_users.each do |user|
+                            = display_user_in_list(user)
 
             .clear
 

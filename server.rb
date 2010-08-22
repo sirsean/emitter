@@ -29,6 +29,7 @@ before do
         puts "Username: #{@logged_in_user.username}"
     end
 
+    @flash = session.delete("flash")
     @site_hostname = config["site_hostname"]
 end
 
@@ -79,12 +80,15 @@ post "/signup/?" do
             :email => @email,
             :follower_ids => [],
             :following_ids => [],
+            :mention_post_ids => [],
             :num_followers => 0,
-            :num_following => 0
+            :num_following => 0,
+            :num_mentions => 0
         })
         user.save
 
         session["user_id"] = user.id
+        flash "Welcome to Emitter!"
         redirect "/home/"
     else
         haml :signup
@@ -93,7 +97,7 @@ end
 
 get "/login/?" do
     if @logged_in_user
-        redirect "/home/"
+        redirect_back "/home/"
     else
         haml :login
     end
@@ -101,14 +105,14 @@ end
 
 post "/login/?" do
     if @logged_in_user
-        redirect "/home/"
+        redirect_back "/home/"
     else
         @username = params["username"]
         password = params["password"]
         user = User.get_by_username_and_password(@username, password)
         if user
             session["user_id"] = user.id
-            redirect "/home/"
+            redirect_back "/home/"
         else
             @errors = ["Invalid login"]
             haml :login
@@ -124,6 +128,7 @@ get "/logout/?" do
 end
 
 get "/profile/?" do
+    set_redirect
     if @logged_in_user
         haml :profile
     else
@@ -150,6 +155,8 @@ post "/profile/?" do
             @logged_in_user.email = @email
             @logged_in_user.bio = @bio
             @logged_in_user.save
+
+            flash "Profile updated"
             redirect "/profile/"
         else
             haml :profile
@@ -160,6 +167,7 @@ post "/profile/?" do
 end
 
 get "/profile/password/?" do
+    set_redirect
     haml :profile_password
 end
 
@@ -186,7 +194,9 @@ post "/profile/password/?" do
         if @errors.empty?
             @logged_in_user.password = password1
             @logged_in_user.save
-            @passwordUpdated = true
+
+            flash "Password updated"
+            redirect "/profile/password/"
         end
 
         haml :profile_password
@@ -196,6 +206,7 @@ post "/profile/password/?" do
 end
 
 get "/profile/picture/?" do
+    set_redirect
     if @logged_in_user
         haml :profile_picture
     else
@@ -208,7 +219,9 @@ post "/profile/picture/?" do
         if params[:file] and (tmpfile = params[:file][:tempfile]) and (filename = params[:file][:filename])
             extension = filename.split(".")[-1]
             File.open("public/profile_pictures/#{@logged_in_user.username}.#{extension}", "w") { |f| f.write(tmpfile.read()) }
-            redirect "/profile/picture/"
+
+            flash "Profile picture updated"
+            redirect_back "/profile/picture/"
         else
             @errors = ["Missing file"]
             haml :profile_picture
@@ -219,7 +232,7 @@ post "/profile/picture/?" do
 end
 
 get "/home/?" do
-    puts "Home, logged in user: #{session["user_id"]}"
+    set_redirect
     if @logged_in_user
         @emissions = Post.get_user_timeline(@logged_in_user.id)
         haml :home
@@ -230,6 +243,7 @@ end
 
 get "/user/:username/?" do |username|
     puts "viewing #{username}"
+    set_redirect
     @user = User.get_by_username(username)
     puts "got user id #{@user.id}"
     @emissions = Post.get_by_author_id(@user.id)
@@ -241,24 +255,28 @@ get "/user/:username/?" do |username|
 end
 
 get "/user/:username/following/?" do |username|
+    set_redirect
     @user = User.get_by_username(username)
     @following = User.get_by_user_ids(@user.following_ids)
     haml :following
 end
 
 get "/user/:username/followers/?" do |username|
+    set_redirect
     @user = User.get_by_username(username)
     @followers = User.get_by_user_ids(@user.follower_ids)
     haml :followers
 end
 
 get "/user/:username/mentions/?" do |username|
+    set_redirect
     @user = User.get_by_username(username)
     @emissions = Post.get_by_mentioned_user_id(@user.id)
     haml :mentions
 end
 
 get "/emission/:post_id/?" do |post_id|
+    set_redirect
     @emission = Post.find(post_id)
     @user = User.find(@emission.author_id)
     haml :emission
@@ -292,7 +310,8 @@ get "/user/:username/follow/?" do |username|
             @logged_in_user.save
         end
 
-        redirect "/user/#{username}/"
+        flash "You are now following #{username}"
+        redirect_back "/user/#{username}/"
     else
         redirect "/login/"
     end
@@ -313,7 +332,8 @@ get "/user/:username/unfollow/?" do |username|
             user.save
         end
 
-        redirect "/user/#{username}/"
+        flash "You are no longer following #{username}"
+        redirect_back "/user/#{username}/"
     else
         redirect "/login/"
     end
@@ -322,9 +342,7 @@ end
 post "/emit/?" do
     if @logged_in_user
         puts "emitting..."
-        puts params
         mentioned_usernames = params["content"].extract_usernames
-        puts mentioned_usernames
         mentioned_users = User.get_by_usernames(mentioned_usernames)
         mentioned_user_ids = mentioned_users.map{|u| u.id}
         in_reply_to = Post.find(params["in_reply_to"])
@@ -378,7 +396,9 @@ post "/emit/?" do
             u.save
         }
 
-        redirect "/home/"
+        #redirect session.delete("redirect_url") or "/home/"
+        flash "Emission posted"
+        redirect_back "/home/"
     else
         redirect "/login/"
     end
@@ -389,14 +409,23 @@ post "/emission/:post_id/update/?" do |post_id|
 end
 
 get "/conversation/:conversation_id/?" do |conversation_id|
+    set_redirect
+
     @conversation = Conversation.find(conversation_id)
-    @users = User.get_by_user_ids(@conversation.user_ids)
+    @conversation_users = User.get_by_user_ids(@conversation.user_ids)
     @emissions = Post.get_by_post_ids(@conversation.post_ids)
 
     haml :conversation
 end
 
 get "/search/?" do
+    set_redirect
+    @term = params["term"]
+
+    if @term and not @term.empty?
+        @emissions = Post.search_content(@term)
+    end
+
     haml :search
 end
 
@@ -445,5 +474,18 @@ class String
     end
 
 end
+
+def flash(message)
+    session["flash"] = message
+end
+
+def set_redirect
+    session["redirect_url"] = request.fullpath
+end
+
+def redirect_back(default=nil)
+    redirect session.delete("redirect_url") or default
+end
+
 
 #load the routes for each module's functionality

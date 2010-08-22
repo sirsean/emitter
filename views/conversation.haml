@@ -1,15 +1,6 @@
 %h2="Conversation"
 
-- if not @users.empty?
-    %h3="Participants"
-    #user_list
-        - @users.each do |user|
-            = display_user_in_list(user)
-
 - if not @emissions.empty?
-    .clear
-    %hr
-    %h3="Emissions"
     #emission_list
         - @emissions.each do |emission|
             = display_emission(emission)

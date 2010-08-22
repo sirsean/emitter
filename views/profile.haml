@@ -12,6 +12,6 @@
         %input{:type => "text", :name => "email", :value => @logged_in_user.email, :tabindex => 2}
     %p
         Bio:
-        %textarea{:name => "bio", :tabindex => 3}=@logged_in_user.bio
+        %textarea{:name => "bio", :tabindex => 3, :rows => 4, :style => "width: 95%;"}=@logged_in_user.bio
     %p
         %input{:type => "submit", :value => "Save"}
