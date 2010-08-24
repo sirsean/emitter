@@ -1,5 +1,12 @@
 %h2="Conversation"
 
+- if @is_participating
+    %p
+        %a{:href => "/conversation/#{@conversation.id}/leave/"}="Leave"
+- else
+    %p
+        %a{:href => "/conversation/#{@conversation.id}/join/"}="Join"
+
 - if not @emissions.empty?
     #emission_list
         - @emissions.each do |emission|

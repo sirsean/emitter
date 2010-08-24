@@ -351,7 +351,6 @@ post "/emit/?" do
             :in_reply_to => params["in_reply_to"]
         })
 
-        #redirect session.delete("redirect_url") or "/home/"
         flash "Emission posted"
         redirect_back "/home/"
     else
@@ -370,7 +369,37 @@ get "/conversation/:conversation_id/?" do |conversation_id|
     @conversation_users = User.get_by_user_ids(@conversation.user_ids)
     @emissions = Post.get_by_post_ids(@conversation.post_ids)
 
+    if @logged_in_user
+        @is_participating = @conversation.user_ids.include?(@logged_in_user.id)
+    end
+
     haml :conversation
+end
+
+get "/conversation/:conversation_id/join/?" do |conversation_id|
+    if @logged_in_user
+        conversation = Conversation.find(conversation_id)
+        conversation.add_user(@logged_in_user.id)
+        conversation.save
+
+        flash "Joined conversation"
+        redirect_back "/conversation/#{conversation.id}/"
+    else
+        redirect "/login/"
+    end
+end
+
+get "/conversation/:conversation_id/leave/?" do |conversation_id|
+    if @logged_in_user
+        conversation = Conversation.find(conversation_id)
+        conversation.remove_user(@logged_in_user.id)
+        conversation.save
+
+        flash "You are no longer participating in this conversation"
+        redirect_back "/conversation/#{conversation.id}/"
+    else
+        redirect "/login/"
+    end
 end
 
 get "/search/?" do
